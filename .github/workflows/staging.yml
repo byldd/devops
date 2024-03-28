@@ -1,0 +1,31 @@
+name: Docker Image CI
+
+on:
+  push:
+    branches:
+      - staging
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Install Infisical
+        run: |
+          curl -1sLf "https://dl.cloudsmith.io/public/infisical/infisical-cli/setup.deb.sh" | sudo -E bash
+          sudo apt-get update && sudo apt-get install -y infisical
+
+      # Need to run this with infisical because we need AWS access key & secret in the environment for aws cli to work.
+      - name: AWS ECR Login
+        run: infisical run --env=staging --path=/github/ --token=${{secrets.INFISICAL_TOKEN}} -- aws ecr get-login-password --region ${{secrets.AWS_DEFAULT_REGION}} | docker login --username AWS --password-stdin ${{secrets.AWS_URI}}
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Expose GitHub Runtime
+        uses: crazy-max/ghaction-github-runtime@v3
+
+      - name: Build & Push
+        run: INFISICAL_TOKEN=${{secrets.INFISICAL_TOKEN}} docker buildx build --cache-from type=gha --cache-to type=gha,mode=max -f ./Dockerfile.staging --secret id=infisical_token,env=INFISICAL_TOKEN -t ${{secrets.AWS_URI}}/${{secrets.AWS_REPO_NAME}}-staging:latest --push .

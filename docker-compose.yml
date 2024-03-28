@@ -1,0 +1,30 @@
+version: "3"
+
+services:
+  frontend:
+    image: _AWS_URI_/_AWS_REPO_NAME_
+    container_name: _APP_CONTAINER_NAME_
+    ports:
+      - "_PORT_:_PORT_"
+    restart: always
+    environment:
+      - INFISICAL_TOKEN=$INFISICAL_TOKEN
+    networks:
+      - app-network
+
+  webserver:
+    image: caddy
+    container_name: webserver
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./caddy/data/:/data/
+      - ./caddy/config/:/config/
+      - ./caddy/Caddyfile/:/etc/caddy/Caddyfile
+    networks:
+      - app-network
+
+networks:
+  app-network:
+    driver: bridge
