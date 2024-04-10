@@ -1,16 +1,16 @@
 # make sure to give executable rights to this file with - "chmod +x server_setup.sh"
 
-INFISICAL_TOKEN="<infisical-service-token>"
-INFISICAL_ENV="<staging | prod | dev>" # environment to fetch the env from
+INFISICAL_TOKEN="st.67e05bf8-c01d-40c5-94de-7603f5ebdaa9.9a6f9c214f6623b9a62788018611dc9f.2ec3058fd25959b20bffa7697e4f525e"
+INFISICAL_ENV="staging" # environment to fetch the env from
 
-AWS_DEFAULT_REGION="<region>" # region where the ecr repo is hosted
-AWS_URI="<aws-ecr-uri>"
+AWS_DEFAULT_REGION="us-east-2" # region where the ecr repo is hosted
+AWS_URI="035117277814.dkr.ecr.us-east-2.amazonaws.com"
 
-FE_AWS_REPO_NAME="<ecr-repo-name>" # the docker image to pull and run
-BE_AWS_REPO_NAME="<ecr-repo-name>" # the docker image to pull and run
+FE_AWS_REPO_NAME="rhefy-fe:staging" # the docker image to pull and run
+BE_AWS_REPO_NAME="rhefy-be:staging" # the docker image to pull and run
 
-FE_DOMAIN_NAME="" # frontend domain name to configure webserver
-BE_DOMAIN_NAME="" # backend domain name to configure webserver
+FE_DOMAIN_NAME="test.decimal-app.com" # frontend domain name to configure webserver
+BE_DOMAIN_NAME="test-api.decimal-app.com" # backend domain name to configure webserver
 
 FE_PORT=3000 # frontend application port
 BE_PORT=8000 # backend application port
@@ -144,6 +144,9 @@ echo "$Caddyfile_Conf" > $HOME/caddy/Caddyfile
 
 # Update Docker Compose -> AWS URI
 awk "{gsub(/_AWS_URI_/, \"$AWS_URI\"); print}" docker-compose.yml > temp_file && mv temp_file docker-compose.yml
+
+# Update Docker Compose -> INFISICAL ENV
+awk "{gsub(/_INFISICAL_ENV_/, \"$INFISICAL_ENV\"); print}" docker-compose.yml > temp_file && mv temp_file docker-compose.yml
 
 # Update Docker Compose -> AWS REPO NAME
 awk "{gsub(/_FE_AWS_REPO_NAME_/, \"$FE_AWS_REPO_NAME\"); print}" docker-compose.yml > temp_file && mv temp_file docker-compose.yml
