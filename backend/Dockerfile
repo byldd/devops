@@ -16,45 +16,48 @@ FROM base AS deps
 WORKDIR /app
 
 # Install dependencies based on the preferred package manager
+# ENV NODE_ENV=production
 COPY package.json yarn.lock* package-lock.json* pnpm-lock.yaml* ./
-RUN npm install
+RUN \
+  if [ -f yarn.lock ]; then yarn --frozen-lockfile; \
+  elif [ -f package-lock.json ]; then npm ci; \
+  elif [ -f pnpm-lock.yaml ]; then corepack enable pnpm && pnpm i; \
+  else echo "Lockfile not found." && exit 1; \
+  fi
 
 
 # ==============================================================
 # 2. Rebuild the source code only when needed
 # ==============================================================
 FROM base AS builder
+
 WORKDIR /app
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 
+ARG infisical_env
+
 RUN --mount=type=secret,id=infisical_token,required=true \
   INFISICAL_TOKEN=$(cat /run/secrets/infisical_token) \
-  infisical run --env=staging -- npm run build
+  infisical export --env=$infisical_env --path=/backend > .env
+
+RUN npm run tsc
+
+RUN rm .env
 
 
 # ==============================================================
 # 3. Production image, copy all the files and run next
 # ==============================================================
 FROM base AS runner
+
 WORKDIR /app
 
+COPY --from=builder /app .
 
-RUN addgroup -g 1001 -S nodejs
-RUN adduser -S nextjs -u 1001
+EXPOSE 8000
 
-COPY --from=builder /app/public ./public
-
-# Automatically leverage output traces to reduce image size
-# https://nextjs.org/docs/advanced-features/output-file-tracing
-COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
-COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
-
-USER nextjs
-
-EXPOSE 3000
-
-ENV PORT 3000
+ENV PORT 8000
 ENV HOSTNAME 0.0.0.0
 
-CMD ["infisical", "run", "--env=staging", "--", "node", "server.js"]
+# CMD ["infisical", "run", "--env=staging", "--path=/backend", "--", "node", "server/index.js"]

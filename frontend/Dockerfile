@@ -17,7 +17,12 @@ WORKDIR /app
 
 # Install dependencies based on the preferred package manager
 COPY package.json yarn.lock* package-lock.json* pnpm-lock.yaml* ./
-RUN npm install
+RUN \
+  if [ -f yarn.lock ]; then yarn --frozen-lockfile; \
+  elif [ -f package-lock.json ]; then npm ci; \
+  elif [ -f pnpm-lock.yaml ]; then corepack enable pnpm && pnpm i; \
+  else echo "Lockfile not found." && exit 1; \
+  fi
 
 
 # ==============================================================
@@ -28,9 +33,11 @@ WORKDIR /app
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 
+ARG infisical_env
+
 RUN --mount=type=secret,id=infisical_token,required=true \
   INFISICAL_TOKEN=$(cat /run/secrets/infisical_token) \
-  infisical run --env=prod -- npm run build
+  infisical run --env=$infisical_env --path=/frontend -- npm run build
 
 
 # ==============================================================
@@ -57,4 +64,4 @@ EXPOSE 3000
 ENV PORT 3000
 ENV HOSTNAME 0.0.0.0
 
-CMD ["infisical", "run", "--env=prod", "--", "node", "server.js"]
+# CMD ["infisical", "run", "--env=staging", "--path=/frontend", "--", "node", "server.js"]

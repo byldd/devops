@@ -1,23 +1,53 @@
-version: "3"
+version: '3'
 
 services:
   frontend:
-    image: _AWS_URI_/_AWS_REPO_NAME_
-    container_name: _APP_CONTAINER_NAME_
+    depends_on:
+      - _BE_APP_CONTAINER_NAME_
+    image: _AWS_URI_/_FE_AWS_REPO_NAME_
+    container_name: _FE_APP_CONTAINER_NAME_
     ports:
-      - "_PORT_:_PORT_"
+      - '_FE_PORT_:_FE_PORT_'
     restart: always
     environment:
       - INFISICAL_TOKEN=$INFISICAL_TOKEN
+    entrypoint:
+      [
+        '/bin/bash',
+        '-c',
+        'infisical run --env=_INFISICAL_ENV_ --path=/frontend -- node server.js',
+      ]
+    networks:
+      - app-network
+
+  backend:
+    container_name: _BE_APP_CONTAINER_NAME_
+    image: _AWS_URI_/_BE_AWS_REPO_NAME_
+    ports:
+      - '_BE_PORT_:_BE_PORT_'
+    restart: 'always'
+    environment:
+      - INFISICAL_TOKEN=$INFISICAL_TOKEN
+    entrypoint:
+      [
+        '/bin/bash',
+        '-c',
+        'infisical run --env=_INFISICAL_ENV_ --path=/backend -- node ./server/index.js',
+      ]
+    volumes:
+      - './firebase-cert.json:/app/lib/firebase-cert.json'
     networks:
       - app-network
 
   webserver:
+    depends_on:
+      - _BE_APP_CONTAINER_NAME_
+      - _FE_APP_CONTAINER_NAME_
     image: caddy
     container_name: webserver
     ports:
-      - "80:80"
-      - "443:443"
+      - '80:80'
+      - '443:443'
     volumes:
       - ./caddy/data/:/data/
       - ./caddy/config/:/config/
@@ -25,6 +55,24 @@ services:
     networks:
       - app-network
 
+  watchtower:
+    image: containrrr/watchtower
+    container_name: watchtower
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - /home/ubuntu/.docker/config.json:/config.json
+      - helper:/go/bin
+    environment:
+      - AWS_SECRET_ACCESS_KEY=$AWS_SECRET_ACCESS_KEY
+      - AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEY_ID
+      - PATH=$PATH:/go/bin
+      - HOME=/
+    command: --cleanup --interval 30 _FE_APP_CONTAINER_NAME_ _BE_APP_CONTAINER_NAME_
+
 networks:
   app-network:
     driver: bridge
+
+volumes:
+  helper:
+    external: true
