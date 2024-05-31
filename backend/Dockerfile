@@ -17,13 +17,8 @@ WORKDIR /app
 
 # Install dependencies based on the preferred package manager
 # ENV NODE_ENV=production
-COPY package.json yarn.lock* package-lock.json* pnpm-lock.yaml* ./
-RUN \
-  if [ -f yarn.lock ]; then yarn --frozen-lockfile; \
-  elif [ -f package-lock.json ]; then npm ci; \
-  elif [ -f pnpm-lock.yaml ]; then corepack enable pnpm && pnpm i; \
-  else echo "Lockfile not found." && exit 1; \
-  fi
+COPY package.json ./
+RUN npm install
 
 
 # ==============================================================
@@ -36,10 +31,11 @@ COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 
 ARG infisical_env
+ARG infisical_project_id
 
 RUN --mount=type=secret,id=infisical_token,required=true \
   INFISICAL_TOKEN=$(cat /run/secrets/infisical_token) \
-  infisical export --env=$infisical_env --path=/backend > .env
+  infisical export --projectId=$infisical_project_id --env=$infisical_env --path=/backend > .env
 
 RUN npm run tsc
 

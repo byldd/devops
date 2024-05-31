@@ -18,7 +18,7 @@ jobs:
           sudo apt-get update && sudo apt-get install -y infisical
 
       - name: AWS ECR Login
-        run: infisical run --env=staging --path=/frontend/github --token=${{secrets.INFISICAL_TOKEN}} -- aws ecr get-login-password --region ${{secrets.AWS_DEFAULT_REGION}} | docker login --username AWS --password-stdin ${{secrets.AWS_URI}}
+        run: infisical run --projectId=${{secrets.INFISICAL_PROJECT_ID}} --env=staging --path=/frontend/github --token=$(infisical login --method=universal-auth --client-id=${{secrets.INFISICAL_CLIENT_ID}} --client-secret=${{secrets.INFISICAL_CLIENT_SECRET}} --silent --plain) -- aws ecr get-login-password --region ${{secrets.AWS_DEFAULT_REGION}} | docker login --username AWS --password-stdin ${{secrets.AWS_URI}}
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
@@ -27,4 +27,4 @@ jobs:
         uses: crazy-max/ghaction-github-runtime@v3
 
       - name: Build & Push
-        run: INFISICAL_TOKEN=${{secrets.INFISICAL_TOKEN}} docker buildx build --platform linux/amd64 --provenance=false --cache-from type=gha --cache-to type=gha,mode=max -f ./Dockerfile --build-arg infisical_env=staging --secret id=infisical_token,env=INFISICAL_TOKEN -t ${{secrets.AWS_URI}}/${{secrets.AWS_REPO_NAME}}:staging --push .
+        run: INFISICAL_TOKEN=$(infisical login --method=universal-auth --client-id=${{secrets.INFISICAL_CLIENT_ID}} --client-secret=${{secrets.INFISICAL_CLIENT_SECRET}} --silent --plain) docker buildx build --platform linux/amd64 --provenance=false --cache-from type=gha --cache-to type=gha,mode=max -f ./Dockerfile --build-arg infisical_env=staging --build-arg infisical_project_id=${{secrets.INFISICAL_PROJECT_ID}} --secret id=infisical_token,env=INFISICAL_TOKEN -t ${{secrets.AWS_URI}}/${{secrets.AWS_REPO_NAME}}:staging --push .

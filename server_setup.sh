@@ -1,16 +1,23 @@
-# make sure to give executable rights to this file with - "chmod +x server_setup.sh"
+######################################################################################
+# make sure to give executable rights to this file with - "chmod +x server_setup.sh" #
+######################################################################################
 
-INFISICAL_TOKEN="st.67e05bf8-c01d-40c5-94de-7603f5ebdaa9.9a6f9c214f6623b9a62788018611dc9f.2ec3058fd25959b20bffa7697e4f525e"
+INFISICAL_CLIENT_ID=xxx
+INFISICAL_CLIENT_SECRET=xxx
+INFISICAL_PROJECT_ID=xxx
 INFISICAL_ENV="staging" # environment to fetch the env from
 
-AWS_DEFAULT_REGION="us-east-2" # region where the ecr repo is hosted
-AWS_URI="035117277814.dkr.ecr.us-east-2.amazonaws.com"
+AWS_DEFAULT_REGION=xxx # region where the ecr repo is hosted
+AWS_URI=xxx
+AWS_ACCESS_KEY_ID=xxx
+AWS_SECRET_ACCESS_KEY=xxx
 
-FE_AWS_REPO_NAME="rhefy-fe:staging" # the docker image to pull and run
-BE_AWS_REPO_NAME="rhefy-be:staging" # the docker image to pull and run
+FE_AWS_REPO_NAME=xxx # the docker image to pull and run
+BE_AWS_REPO_NAME=xxx # the docker image to pull and run
 
-FE_DOMAIN_NAME="test.decimal-app.com" # frontend domain name to configure webserver
-BE_DOMAIN_NAME="test-api.decimal-app.com" # backend domain name to configure webserver
+FE_DOMAIN_NAME=xxx # frontend domain name to configure webserver
+BE_DOMAIN_NAME=xxx # backend domain name to configure webserver
+PORTAINER_DOMAIN=xxx
 
 FE_PORT=3000 # frontend application port
 BE_PORT=8000 # backend application port
@@ -20,17 +27,28 @@ FE_APP_CONTAINER_NAME=frontend
 BE_APP_CONTAINER_NAME=backend
 
 
+# =======================================================================
+# Check if infisical client id exists or not in bashrc
+# =======================================================================
+if grep -qR "INFISICAL_CLIENT_ID" $HOME/.bashrc; 
+then
+	echo "skipped adding infisical client id to bashrc"
+else
+  echo "export INFISICAL_CLIENT_ID=$INFISICAL_CLIENT_ID" >> $HOME/.bashrc
+  source $HOME/.bashrc
+	echo "added infisical client id to bashrc"
+fi
 
 # =======================================================================
-# Check if infisical token exists or not in bashrc
+# Check if infisical client secret exists or not in bashrc
 # =======================================================================
-if grep -qR "INFISICAL_TOKEN" $HOME/.bashrc; 
+if grep -qR "INFISICAL_CLIENT_SECRET" $HOME/.bashrc; 
 then
-	echo "skipped adding infisical token to bashrc"
+	echo "skipped adding infisical client secret to bashrc"
 else
-  echo "export INFISICAL_TOKEN=$INFISICAL_TOKEN" >> $HOME/.bashrc
+  echo "export INFISICAL_CLIENT_SECRET=$INFISICAL_CLIENT_SECRET" >> $HOME/.bashrc
   source $HOME/.bashrc
-	echo "added infisical token to bashrc"
+	echo "added infisical client secret to bashrc"
 fi
 
 # =======================================================================
@@ -71,47 +89,39 @@ fi
 # ==========================================================================================
 
 # https://docs.docker.com/engine/install/ubuntu/
-# Add Docker's official GPG key:
-sudo apt-get update
-sudo apt-get install -y ca-certificates curl
-sudo install -m 0755 -d /etc/apt/keyrings
-sudo curl -fsSL https://download.docker.com/linux/ubuntu/gpg -o /etc/apt/keyrings/docker.asc
-sudo chmod a+r /etc/apt/keyrings/docker.asc
+STATUS="$(systemctl is-active docker)"
+if [ "${STATUS}" = "active" ]; then
+  echo "Skipped setting up docker"
+else
+  sudo apt-get update
+  sudo apt-get install -y ca-certificates curl
+  sudo install -m 0755 -d /etc/apt/keyrings
+  sudo curl -fsSL https://download.docker.com/linux/ubuntu/gpg -o /etc/apt/keyrings/docker.asc
+  sudo chmod a+r /etc/apt/keyrings/docker.asc
 
-# Add the repository to Apt sources:
-echo \
-  "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.asc] https://download.docker.com/linux/ubuntu \
-  $(. /etc/os-release && echo "$VERSION_CODENAME") stable" | \
-  sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
-sudo apt-get update
-sudo apt-get install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
+  # Add the repository to Apt sources:
+  echo \
+    "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.asc] https://download.docker.com/linux/ubuntu \
+    $(. /etc/os-release && echo "$VERSION_CODENAME") stable" | \
+    sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
+  sudo apt-get update
+  sudo apt-get install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
 
-# Give docker root access
-sudo groupadd docker
-sudo usermod -aG docker $USER
-newgrp docker
-sudo su - $USER
+  # Give docker root access
+  # sudo groupadd docker
+  sudo usermod -aG docker $USER
+  sudo su - $USER
+fi
 
 # ==========================================================================================
 # STEP 2 - Insall AWS ECR credentials manager
 # ==========================================================================================
-# curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
-# sudo apt install -y unzip
-# unzip awscliv2.zip
-# sudo ./aws/install
-sudo apt update
 sudo apt install -y amazon-ecr-credential-helper
 
 # ==========================================================================================
-# STEP 3 - Setup Infisical
+# STEP 3 - Configure Caddy ( webserver )
 # ==========================================================================================
-# curl -1sLf 'https://dl.cloudsmith.io/public/infisical/infisical-cli/setup.deb.sh' | sudo -E bash
-# sudo apt-get update && sudo apt-get install -y infisical
 
-# ==========================================================================================
-# STEP 4 - Login to AWS and Docker
-# ==========================================================================================
-# infisical run --env="$INFISICAL_ENV" --path=/github/ -- aws ecr get-login-password --region "$AWS_DEFAULT_REGION" | docker login --username AWS --password-stdin "$AWS_URI"
 DOCKER_CONFIG="
 {
   \"credsStore\": \"ecr-login\",
@@ -120,6 +130,9 @@ DOCKER_CONFIG="
 	}
 }
 "
+
+mkdir -p $HOME/.docker
+touch $HOME/.docker/config.json
 echo "$DOCKER_CONFIG" > ${HOME}/.docker/config.json
 
 # ==========================================================================================
@@ -137,36 +150,45 @@ $FE_DOMAIN_NAME {
 $BE_DOMAIN_NAME {
 	reverse_proxy http://$BE_APP_CONTAINER_NAME:$BE_PORT
 }
+
+$PORTAINER_DOMAIN {
+  reverse_proxy http://portainer:9000
+}
 "
 mkdir -p $HOME/caddy
 echo "$Caddyfile_Conf" > $HOME/caddy/Caddyfile
 
 
+# Update Docker Compose -> INFISICAL PROJECT ID
+awk "{gsub(/_INFISICAL_PROJECT_ID_/, \"$INFISICAL_PROJECT_ID\"); print}" $HOME/docker-compose.yml > temp_file && mv temp_file $HOME/docker-compose.yml
+
 # Update Docker Compose -> AWS URI
-awk "{gsub(/_AWS_URI_/, \"$AWS_URI\"); print}" docker-compose.yml > temp_file && mv temp_file docker-compose.yml
+awk "{gsub(/_AWS_URI_/, \"$AWS_URI\"); print}" $HOME/docker-compose.yml > temp_file && mv temp_file $HOME/docker-compose.yml
 
 # Update Docker Compose -> INFISICAL ENV
-awk "{gsub(/_INFISICAL_ENV_/, \"$INFISICAL_ENV\"); print}" docker-compose.yml > temp_file && mv temp_file docker-compose.yml
+awk "{gsub(/_INFISICAL_ENV_/, \"$INFISICAL_ENV\"); print}" $HOME/docker-compose.yml > temp_file && mv temp_file $HOME/docker-compose.yml
 
 # Update Docker Compose -> AWS REPO NAME
-awk "{gsub(/_FE_AWS_REPO_NAME_/, \"$FE_AWS_REPO_NAME\"); print}" docker-compose.yml > temp_file && mv temp_file docker-compose.yml
+awk "{gsub(/_FE_AWS_REPO_NAME_/, \"$FE_AWS_REPO_NAME\"); print}" $HOME/docker-compose.yml > temp_file && mv temp_file $HOME/docker-compose.yml
 
-awk "{gsub(/_BE_AWS_REPO_NAME_/, \"$BE_AWS_REPO_NAME\"); print}" docker-compose.yml > temp_file && mv temp_file docker-compose.yml
+awk "{gsub(/_BE_AWS_REPO_NAME_/, \"$BE_AWS_REPO_NAME\"); print}" $HOME/docker-compose.yml > temp_file && mv temp_file $HOME/docker-compose.yml
 
 # Update Docker Compose -> Container Name
-awk "{gsub(/_FE_APP_CONTAINER_NAME_/, \"$FE_APP_CONTAINER_NAME\"); print}" docker-compose.yml > temp_file && mv temp_file docker-compose.yml
+awk "{gsub(/_FE_APP_CONTAINER_NAME_/, \"$FE_APP_CONTAINER_NAME\"); print}" $HOME/docker-compose.yml > temp_file && mv temp_file $HOME/docker-compose.yml
 
-awk "{gsub(/_BE_APP_CONTAINER_NAME_/, \"$BE_APP_CONTAINER_NAME\"); print}" docker-compose.yml > temp_file && mv temp_file docker-compose.yml
+awk "{gsub(/_BE_APP_CONTAINER_NAME_/, \"$BE_APP_CONTAINER_NAME\"); print}" $HOME/docker-compose.yml > temp_file && mv temp_file $HOME/docker-compose.yml
 
 # Update Docker Compose -> Container Port
-awk "{gsub(/_FE_PORT_/, \"$FE_PORT\"); print}" docker-compose.yml > temp_file && mv temp_file docker-compose.yml
+awk "{gsub(/_FE_PORT_/, \"$FE_PORT\"); print}" $HOME/docker-compose.yml > temp_file && mv temp_file $HOME/docker-compose.yml
 
-awk "{gsub(/_BE_PORT_/, \"$BE_PORT\"); print}" docker-compose.yml > temp_file && mv temp_file docker-compose.yml
+awk "{gsub(/_BE_PORT_/, \"$BE_PORT\"); print}" $HOME/docker-compose.yml > temp_file && mv temp_file $HOME/docker-compose.yml
 
 
 # Mount aws ecr credential helper volume to host machine so that it can be used inside watchtower for ecr creds helper installation
 # ref: https://containrrr.dev/watchtower/private-registries/#credential_helpers
 docker run  -d --rm --name aws-cred-helper --volume helper:/go/bin tanishbyldd/aws-ecr-dock-cred-helper
+
+docker volume create portainer_data
 
 # Run Docker Compose
 docker compose up -d

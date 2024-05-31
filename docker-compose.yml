@@ -10,12 +10,13 @@ services:
       - '_FE_PORT_:_FE_PORT_'
     restart: always
     environment:
-      - INFISICAL_TOKEN=$INFISICAL_TOKEN
+      - INFISICAL_CLIENT_ID=$INFISICAL_CLIENT_ID
+      - INFISICAL_CLIENT_SECRET=$INFISICAL_CLIENT_SECRET
     entrypoint:
       [
         '/bin/bash',
         '-c',
-        'infisical run --env=_INFISICAL_ENV_ --path=/frontend -- node server.js',
+        'infisical run --token=$(infisical login --method=universal-auth --client-id=$INFISICAL_CLIENT_ID --client-secret=$INFISICAL_CLIENT_SECRET --silent --plain) --env=_INFISICAL_ENV_ --projectId=_INFISICAL_PROJECT_ID_ --path=/frontend -- node server.js',
       ]
     networks:
       - app-network
@@ -27,12 +28,13 @@ services:
       - '_BE_PORT_:_BE_PORT_'
     restart: 'always'
     environment:
-      - INFISICAL_TOKEN=$INFISICAL_TOKEN
+      - INFISICAL_CLIENT_ID=$INFISICAL_CLIENT_ID
+      - INFISICAL_CLIENT_SECRET=$INFISICAL_CLIENT_SECRET
     entrypoint:
       [
         '/bin/bash',
         '-c',
-        'infisical run --env=_INFISICAL_ENV_ --path=/backend -- node ./server/index.js',
+        'infisical run --token=$(infisical login --method=universal-auth --client-id=$INFISICAL_CLIENT_ID --client-secret=$INFISICAL_CLIENT_SECRET --silent --plain) --env=_INFISICAL_ENV_ --projectId=_INFISICAL_PROJECT_ID_ --path=/backend -- node ./server/index.js',
       ]
     volumes:
       - './firebase-cert.json:/app/lib/firebase-cert.json'
@@ -43,6 +45,7 @@ services:
     depends_on:
       - _BE_APP_CONTAINER_NAME_
       - _FE_APP_CONTAINER_NAME_
+      - portainer
     image: caddy
     container_name: webserver
     ports:
@@ -67,7 +70,41 @@ services:
       - AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEY_ID
       - PATH=$PATH:/go/bin
       - HOME=/
-    command: --cleanup --interval 30 _FE_APP_CONTAINER_NAME_ _BE_APP_CONTAINER_NAME_
+    command: --cleanup --interval 30 _FE_APP_CONTAINER_NAME_ _BE_APP_CONTAINER_NAME_ # backend_cron
+
+  portainer:
+    image: portainer/portainer-ce:latest
+    container_name: portainer
+    volumes:
+      - portainer_data:/data
+      - /var/run/docker.sock:/var/run/docker.sock
+    restart: always
+    ports:
+      - '7000:8000'
+      - '9000:9000'
+    networks:
+      - app-network
+
+  # backend_cron:
+  #   container_name: backend_cron
+  #   image: _AWS_URI_/_BE_AWS_REPO_NAME_
+  #   ports:
+  #     - '8001:8001'
+  #   restart: 'always'
+  #   environment:
+  #     # - INFISICAL_TOKEN=$INFISICAL_TOKEN
+  #     - INFISICAL_CLIENT_ID=$INFISICAL_CLIENT_ID
+  #     - INFISICAL_CLIENT_SECRET=$INFISICAL_CLIENT_SECRET
+  #   entrypoint:
+  #     [
+  #       '/bin/bash',
+  #       '-c',
+  #       'infisical run --token=$(infisical login --method=universal-auth --client-id=$INFISICAL_CLIENT_ID --client-secret=$INFISICAL_CLIENT_SECRET --silent --plain) --env=_INFISICAL_ENV_ --projectId=_INFISICAL_PROJECT_ID_ --path=/backend -- node ./server/cron/cron.js',
+  #     ]
+  #   volumes:
+  #     - './firebase-cert.json:/app/lib/firebase-cert.json'
+  #   networks:
+  #     - app-network
 
 networks:
   app-network:
@@ -75,4 +112,6 @@ networks:
 
 volumes:
   helper:
+    external: true
+  portainer_data:
     external: true
