@@ -8,32 +8,26 @@ install_with_progress() {
     echo "✅  $name is already installed."
     return
   else
-    echo "⏳  Not found. Installing $name..."
+    echo -n "🚀  Installing $name"
   fi
 
-  # Run the install in a clean background subshell
+  # Run install in background subshell
   (
     set -e
     $command_fn install > /dev/null 2> "$error_log"
   ) &
   local pid=$!
 
-  # Show progress dots while installing
-  local i=0
-  local dots=""
+  # Print clean progress dots
   while kill -0 "$pid" 2>/dev/null; do
-    dots="${dots}."
-    echo -ne "\r🚀  Installing $name$dots"
+    echo -n "."
     sleep 0.5
-    i=$((i + 1))
-    if [ $i -eq 6 ]; then
-      dots=""
-      i=0
-    fi
   done
-  echo -ne "\r"
 
-  # Wait for completion and handle result
+  # Print newline after progress
+  echo
+
+  # Handle completion
   if wait $pid; then
     echo "✅  $name installation completed."
     rm -f "$error_log"
