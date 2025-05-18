@@ -1,15 +1,15 @@
 #!/bin/bash
 set -eo pipefail
 
-# Load shared functions
-source ./utils/utils.sh
+# Load utilities
+source ./utils/install-progress.sh
+source ./utils/env-checker.sh
 
-# Load installers
+# Load services
 source ./services/docker.sh
 source ./services/ecr-creds-manager.sh
 source ./services/caddy.sh
 source ./services/infisical.sh
-# Add more as needed
 
 # Run installations
 install_with_progress "Docker" docker_installer
