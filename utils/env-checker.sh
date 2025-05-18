@@ -5,6 +5,11 @@ echo "-----------------------------"
 echo "✨ Step : Checking environment variables"
 echo "-----------------------------"
 
+if [ ! -f "$ENV_FILE" ]; then
+  echo "❌ $ENV_FILE file not found. Please create one based on $ENV_EXAMPLE_FILE."
+  exit 1
+fi
+
 # Load .env file (without exporting globally)
 set -a
 source "$ENV_FILE"
