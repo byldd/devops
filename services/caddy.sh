@@ -26,20 +26,20 @@ caddy_installer() {
         rm -f "$CADDY_FILE"
       fi
 
-      #create a new Caddyfile with our .envs
-      cat <<EOF > "$CADDY_FILE"
-      {
-        email $CADDY_EMAIL
-      }
+#create a new Caddyfile with our .envs
+cat <<EOF > "$CADDY_FILE"
+{
+  email $CADDY_EMAIL
+}
 
-      $FRONTEND_DOMAIN {
-        reverse_proxy http://localhost:$FRONTEND_PORT
-      }
+$FRONTEND_DOMAIN {
+  reverse_proxy http://localhost:$FRONTEND_PORT
+}
 
-      $BACKEND_DOMAIN {
-        reverse_proxy http://localhost:$BACKEND_PORT
-      }
-      EOF
+$BACKEND_DOMAIN {
+  reverse_proxy http://localhost:$BACKEND_PORT
+}
+EOF
 
       # Set correct permissions
       chown root:root "$CADDY_FILE"

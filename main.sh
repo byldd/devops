@@ -5,7 +5,6 @@ set -eo pipefail
 source ./utils/env-checker.sh
 source ./utils/install-progress.sh
 
-echo "$CADDY_EMAIL"
 # Load services
 source ./services/docker.sh
 source ./services/ecr-creds-manager.sh
