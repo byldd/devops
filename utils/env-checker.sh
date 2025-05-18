@@ -3,7 +3,6 @@ ENV_FILE="../.env"
 
 echo "-----------------------------"
 echo "✨ Step : Checking environment variables"
-echo "-----------------------------"
 
 if [ ! -f "$ENV_FILE" ]; then
   echo "❌ .env not found."
