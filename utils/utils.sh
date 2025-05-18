@@ -6,6 +6,7 @@ install_with_progress() {
   echo -n "🚀  STEP : Configuring $name "
   if $command_fn check &>/dev/null; then
     echo "✔️  $name is already installed."
+    return
   fi
 
   # Start install in a subshell in the background
