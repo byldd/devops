@@ -9,31 +9,34 @@ if [ ! -f "$ENV_FILE" ]; then
   exit 1
 fi
 
-# Load .env file (without exporting globally)
+# Load .env values into the environment
 set -a
-source "$ENV_FILE"
+source "$ENV_FILE" 2>/dev/null || true
 set +a
 
 missing_keys=()
 
-while IFS= read -r key; do
-  # Remove whitespace and comments
-  clean_key=$(echo "$key" | sed 's/#.*//' | xargs)
-  [ -z "$clean_key" ] && continue
+# Read each required key from .env.example
+while IFS= read -r line || [ -n "$line" ]; do
+  # Skip comments and blank lines
+  [[ "$line" =~ ^[[:space:]]*$ || "$line" =~ ^# ]] && continue
 
-  if [ -z "${!clean_key+x}" ]; then
-    missing_keys+=("$clean_key")
+  key=$(echo "$line" | cut -d '=' -f 1 | xargs)
+
+  # Check if the key is set in the environment
+  if [ -z "${!key+x}" ]; then
+    missing_keys+=("$key")
   fi
 done < "$ENV_EXAMPLE_FILE"
 
+# If any keys are missing, report and exit
 if [ ${#missing_keys[@]} -ne 0 ]; then
   echo "❌ Missing required environment variables:"
-  for key in "${missing_keys[@]}"; do
-    echo "   - $key"
+  for k in "${missing_keys[@]}"; do
+    echo "   - $k"
   done
   exit 1
-else
-  echo "✔️ All required environment variables are set."
-  echo "-----------------------------"
-  echo
 fi
+
+echo "✅ Environment validation successful."
+
