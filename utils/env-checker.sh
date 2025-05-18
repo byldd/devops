@@ -2,7 +2,6 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 ENV_FILE="$SCRIPT_DIR/../.env"
 ENV_EXAMPLE_FILE="$SCRIPT_DIR/../.env.example"
 
-echo "-----------------------------"
 echo "✨ Step : Checking environment variables"
 
 if [ ! -f "$ENV_FILE" ]; then
@@ -35,4 +34,6 @@ if [ ${#missing_keys[@]} -ne 0 ]; then
   exit 1
 else
   echo "✔️ All required environment variables are set."
+  echo "-----------------------------"
+  echo
 fi
