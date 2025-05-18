@@ -3,12 +3,12 @@ install_with_progress() {
   local command_fn=$2
   local error_log="/tmp/${name,,}_install_error.log"
 
-  echo -n "🔍  Checking if $name is already installed... "
+  echo -n "✨ Step : Configuring $name"
   if $command_fn check &>/dev/null; then
-    echo "✅  $name is already installed."
+    echo -n "✔️ $name is already installed"
     return
   else
-    echo -n "🚀  Installing $name"
+    echo -n "⏳ Installing $name"
   fi
 
   # Run install in background subshell
@@ -29,7 +29,7 @@ install_with_progress() {
 
   # Handle completion
   if wait $pid; then
-    echo "✅  $name installation completed."
+    echo "✔️ $name installation completed."
     rm -f "$error_log"
   else
     echo "❌  $name installation failed!"
