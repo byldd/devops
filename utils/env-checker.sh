@@ -1,5 +1,6 @@
-ENV_FILE="$(dirname "$0")/../.env"
-ENV_EXAMPLE_FILE="$(dirname "$0")/../.env.example"
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+ENV_FILE="$SCRIPT_DIR/../.env"
+ENV_EXAMPLE_FILE="$SCRIPT_DIR/../.env.example"
 
 echo "-----------------------------"
 echo "✨ Step : Checking environment variables"
