@@ -14,6 +14,36 @@ caddy_installer() {
 
       sudo apt-get update -y
       sudo apt-get install -y caddy
+
+      echo "Configuring caddy service..."
+
+      CADDY_DIR="/etc/caddy"
+      CADDY_FILE="$CADDY_DIR/Caddyfile"
+
+      mkdir -p "$CADDY_DIR"
+
+      if [ -f "$CADDY_FILE" ]; then
+        rm -f "$CADDY_FILE"
+      fi
+
+      #create a new Caddyfile with our .envs
+      cat <<EOF > "$CADDY_FILE"
+      {
+        email $CADDY_EMAIL
+      }
+
+      $FRONTEND_DOMAIN {
+        reverse_proxy http://localhost:$FRONTEND_PORT
+      }
+
+      $BACKEND_DOMAIN {
+        reverse_proxy http://localhost:$BACKEND_PORT
+      }
+      EOF
+
+      # Set correct permissions
+      chown root:root "$CADDY_FILE"
+      chmod 644 "$CADDY_FILE"
       ;;
   esac
 }
