@@ -13,7 +13,6 @@ source ./services/infisical.sh
 
 # Run installations
 install_with_progress "Docker" docker_installer
-install_with_progress "NGINX" nginx_installer
 install_with_progress "Amazon-ECR-Credential-Helper" amazon_ecr_credential_helper_installer
 install_with_progress "Caddy" caddy_installer
 install_with_progress "Infisical" infisical_installer

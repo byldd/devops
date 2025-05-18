@@ -3,7 +3,7 @@ install_with_progress() {
   local command_fn=$2
   local error_log="${name,,}_install_error.log"
 
-  echo -n "🚀  STEP : Configuring $name "
+  echo -n "🚀  STEP : Configuring $name \n"
   if $command_fn check &>/dev/null; then
     echo "✔️  $name is already installed."
     return
