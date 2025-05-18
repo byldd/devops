@@ -5,7 +5,7 @@ install_with_progress() {
 
   echo "✨ Step : Configuring $name"
   if $command_fn check &>/dev/null; then
-    echo "✔️  $name is already installed"
+    echo "✔️  $name is already configured"
     echo "-----------------------"
     return
   else
