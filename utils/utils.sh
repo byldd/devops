@@ -1,37 +1,45 @@
 install_with_progress() {
   local name=$1
   local command_fn=$2
-  local error_log="${name,,}_install_error.log"
+  local error_log="/tmp/${name,,}_install_error.log"
 
-  echo -n "🚀  STEP : Configuring $name"
+  echo -n "🔍  Checking if $name is already installed... "
   if $command_fn check &>/dev/null; then
-    echo -n "✔️  $name is already installed."
+    echo "✅  $name is already installed."
     return
+  else
+    echo "⏳  Not found. Installing $name..."
   fi
 
-  # Start install in a subshell in the background
+  # Run the install in a clean background subshell
   (
-    $command_fn install > /dev/null 2>"$error_log"
+    set -e
+    $command_fn install > /dev/null 2> "$error_log"
   ) &
   local pid=$!
 
-  # Progress dots
+  # Show progress dots while installing
+  local i=0
   local dots=""
   while kill -0 "$pid" 2>/dev/null; do
-    dots="$dots."
-    echo -ne "\r⏳ Installing $name$dots"
+    dots="${dots}."
+    echo -ne "\r🚀  Installing $name$dots"
     sleep 0.5
-    [[ ${#dots} -ge 3 ]] && dots=""
+    i=$((i + 1))
+    if [ $i -eq 6 ]; then
+      dots=""
+      i=0
+    fi
   done
   echo -ne "\r"
 
-  # Handle completion
+  # Wait for completion and handle result
   if wait $pid; then
-    echo "✔️  $name installation completed."
+    echo "✅  $name installation completed."
     rm -f "$error_log"
   else
     echo "❌  $name installation failed!"
-    echo "🔧  Error log:"
+    echo "🔧  Error output:"
     cat "$error_log"
     rm -f "$error_log"
     exit 1
