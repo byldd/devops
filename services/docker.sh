@@ -23,6 +23,8 @@ docker_installer() {
       sudo apt-get update -y
       sudo apt-get install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
       # Give root access to docker
+
+      echo "Configuring docker permissions..."
       sudo usermod -aG docker $USER
       sudo su - $USER
       ;;

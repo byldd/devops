@@ -4,7 +4,6 @@ caddy_installer() {
       command -v caddy
       ;;
     install)
-      # Official Caddy apt repo install (recommended)
       sudo apt-get update -y
       sudo apt-get install -y debian-keyring debian-archive-keyring apt-transport-https
 

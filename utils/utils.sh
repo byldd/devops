@@ -19,7 +19,7 @@ install_with_progress() {
   ) &
   local pid=$!
 
-  # Print clean progress dots
+  # Progress
   while kill -0 "$pid" 2>/dev/null; do
     echo -n "."
     sleep 0.5
@@ -30,14 +30,16 @@ install_with_progress() {
 
   # Handle completion
   if wait $pid; then
-    echo "✔️ $name installation completed."
+    echo "✔️ $name configuration completed."
     rm -f "$error_log"
     echo "-----------------------"
   else
-    echo "❌  $name installation failed!"
+    echo "❌  $name configuration failed!"
     echo "🔧  Error output:"
     cat "$error_log"
     rm -f "$error_log"
     exit 1
   fi
+
+  echo
 }

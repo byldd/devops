@@ -4,7 +4,6 @@ infisical_installer() {
       command -v infisical
       ;;
     install)
-      # Install Infisical CLI via official install script
       curl -1sLf \
         'https://artifacts-cli.infisical.com/setup.deb.sh' \
         | sudo -E bash
