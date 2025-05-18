@@ -38,5 +38,7 @@ if [ ${#missing_keys[@]} -ne 0 ]; then
   exit 1
 fi
 
-echo "✅ Environment validation successful."
+echo "✔️ Environment validation successful."
+echo "--------------------------------"
+echo
 
