@@ -1,5 +1,5 @@
-ENV_EXAMPLE_FILE="../.env.example"
-ENV_FILE="../.env"
+ENV_FILE="$(dirname "$0")/../.env"
+ENV_EXAMPLE_FILE="$(dirname "$0")/../.env.example"
 
 echo "-----------------------------"
 echo "✨ Step : Checking environment variables"
