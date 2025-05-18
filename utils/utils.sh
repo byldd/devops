@@ -6,6 +6,7 @@ install_with_progress() {
   echo "✨ Step : Configuring $name"
   if $command_fn check &>/dev/null; then
     echo "✔️  $name is already installed"
+    echo "-----------------------"
     return
   else
     echo "⏳ Installing $name"
@@ -31,6 +32,7 @@ install_with_progress() {
   if wait $pid; then
     echo "✔️ $name installation completed."
     rm -f "$error_log"
+    echo "-----------------------"
   else
     echo "❌  $name installation failed!"
     echo "🔧  Error output:"
