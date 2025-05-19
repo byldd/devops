@@ -24,9 +24,22 @@ docker_installer() {
       sudo apt-get install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
       # Give root access to docker
 
-      echo "Configuring docker permissions..."
+      echo "Configuring docker..."
       sudo usermod -aG docker $USER
       sudo su - $USER
+
+      DOCKER_CONFIG="
+      {
+        \"credsStore\": \"ecr-login\",
+        \"credHelpers\": {
+          \"$ECR_BASE_URI\": \"ecr-login\"
+        }
+      }
+      "
+
+      mkdir -p $HOME/.docker
+      touch $HOME/.docker/config.json
+      echo "$DOCKER_CONFIG" > ${HOME}/.docker/config.json
       ;;
   esac
 }
