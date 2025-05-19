@@ -5,6 +5,16 @@ set -eo pipefail
 source ./utils/env-checker.sh
 source ./utils/install-progress.sh
 
+# =======================================================================
+# Firebase cert file exists check
+# NOTE: This is for the old boilerplate where firebase-cert file is needed
+# to run the backend. Uncomment this if needed.
+# =======================================================================
+# if ! [ -f $HOME/firebase-cert.json ]; then
+#   echo "firebase cert does not exists. Please paste it in $HOME directory. Name of the file should be \'firebase-cert.json\'"
+#   exit 1;
+# fi
+
 # Load services
 source ./services/docker.sh
 source ./services/ecr-creds-manager.sh
