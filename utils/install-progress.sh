@@ -9,8 +9,6 @@ install_with_progress() {
 
   if $command_fn check &>/dev/null; then
     echo "✔️  $name is already installed"
-    echo "-----------------------"
-    echo
     is_exists=true
   fi
 
