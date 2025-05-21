@@ -36,7 +36,6 @@ install_with_progress() {
     if wait $pid; then
       echo "✔️ $name installation completed."
       rm -f "$error_log"
-      echo "-----------------------"
     else
       echo "❌  $name installation failed!"
       echo "🔧  Error output:"
