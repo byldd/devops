@@ -5,13 +5,13 @@ install_with_progress() {
 
   echo "✨ Step : Configuring $name"
 
-  is_exists = false
+  is_exists=false
 
   if $command_fn check &>/dev/null; then
     echo "✔️  $name is already installed"
     echo "-----------------------"
     echo
-    is_exists = true
+    is_exists=true
   fi
 
   if [ "$is_exists" = false ]; then
