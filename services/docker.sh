@@ -40,9 +40,9 @@ docker_installer() {
     #create a new Caddyfile with our .envs
     cat <<EOF >"$DOCKER_CONF"
 {
-  \"credsStore\": \"ecr-login\",
-  \"credHelpers\": {
-    \"$ECR_BASE_URI\": \"ecr-login\"
+  "credsStore": "ecr-login",
+  "credHelpers": {
+    "$ECR_BASE_URI": "ecr-login"
   }
 }
 EOF
