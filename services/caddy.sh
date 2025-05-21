@@ -1,33 +1,33 @@
 caddy_installer() {
   case $1 in
-    check)
-      command -v caddy
-      ;;
-    install)
-      sudo apt-get update -y
-      sudo apt-get install -y debian-keyring debian-archive-keyring apt-transport-https
+  check)
+    command -v caddy
+    ;;
+  install)
+    sudo apt-get update -y
+    sudo apt-get install -y debian-keyring debian-archive-keyring apt-transport-https
 
-      curl -1sLf 'https://dl.cloudsmith.io/public/caddy/stable/gpg.key' | sudo gpg --dearmor -o /usr/share/keyrings/caddy-stable-archive-keyring.gpg
+    curl -1sLf 'https://dl.cloudsmith.io/public/caddy/stable/gpg.key' | sudo gpg --dearmor -o /usr/share/keyrings/caddy-stable-archive-keyring.gpg
 
-      curl -1sLf 'https://dl.cloudsmith.io/public/caddy/stable/debian.deb.txt' | \
-        sudo tee /etc/apt/sources.list.d/caddy-stable.list
+    curl -1sLf 'https://dl.cloudsmith.io/public/caddy/stable/debian.deb.txt' |
+      sudo tee /etc/apt/sources.list.d/caddy-stable.list
 
-      sudo apt-get update -y
-      sudo apt-get install -y caddy
+    sudo apt-get update -y
+    sudo apt-get install -y caddy
+    ;;
+  configure)
+    CADDY_DIR="/etc/caddy"
 
-      echo "Configuring caddy service..."
+    CADDY_FILE="$CADDY_DIR/Caddyfile"
 
-      CADDY_DIR="/etc/caddy"
-      CADDY_FILE="$CADDY_DIR/Caddyfile"
+    mkdir -p "$CADDY_DIR"
 
-      mkdir -p "$CADDY_DIR"
+    if [ -f "$CADDY_FILE" ]; then
+      sudo rm -f "$CADDY_FILE"
+    fi
 
-      if [ -f "$CADDY_FILE" ]; then
-        sudo rm -f "$CADDY_FILE"
-      fi
-
-#create a new Caddyfile with our .envs
-cat <<EOF > "$CADDY_FILE"
+    #create a new Caddyfile with our .envs
+    cat <<EOF >"$CADDY_FILE"
 {
   email $CADDY_EMAIL
 }
@@ -41,9 +41,9 @@ $BACKEND_DOMAIN {
 }
 EOF
 
-      # Set correct permissions
-      chown root:root "$CADDY_FILE"
-      chmod 644 "$CADDY_FILE"
-      ;;
+    # Set correct permissions
+    chown root:root "$CADDY_FILE"
+    chmod 644 "$CADDY_FILE"
+    ;;
   esac
 }
