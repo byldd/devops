@@ -23,7 +23,7 @@ caddy_installer() {
       mkdir -p "$CADDY_DIR"
 
       if [ -f "$CADDY_FILE" ]; then
-        rm -f "$CADDY_FILE"
+        sudo rm -f "$CADDY_FILE"
       fi
 
 #create a new Caddyfile with our .envs
