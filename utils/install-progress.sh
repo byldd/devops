@@ -5,16 +5,16 @@ install_with_progress() {
 
   echo "✨ Step : Configuring $name"
 
-  exists = false
+  is_exists = false
 
   if $command_fn check &>/dev/null; then
     echo "✔️  $name is already installed"
     echo "-----------------------"
     echo
-    exists = true
+    is_exists = true
   fi
 
-  if [ "$exists" = false ]; then
+  if [ "$is_exists" = false ]; then
     echo "⏳ Installing $name"
     # Run install in background subshell
     (
