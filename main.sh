@@ -35,4 +35,5 @@ docker run  -d --rm --name aws-cred-helper --volume helper:/go/bin tanishbyldd/a
 echo "✔️  Watchtower configuration completed"
 echo "-----------------------"
 echo
+sudo systemctl restart caddy
 echo " 🚀 All services are configured successfully"

@@ -28,16 +28,16 @@ docker_installer() {
       sudo usermod -aG docker $USER
       sudo su - $USER
 
-      DOCKER_CONFIG="
-      {
-        \"credsStore\": \"ecr-login\",
-        \"credHelpers\": {
-          \"$ECR_BASE_URI\": \"ecr-login\"
-        }
-      }
-      "
+DOCKER_CONFIG="
+{
+  \"credsStore\": \"ecr-login\",
+  \"credHelpers\": {
+    \"$ECR_BASE_URI\": \"ecr-login\"
+  }
+}
+"
 
-      mkdir -p $HOME/.docker
+      sudo mkdir -p $HOME/.docker
       touch $HOME/.docker/config.json
       echo "$DOCKER_CONFIG" > ${HOME}/.docker/config.json
       ;;
