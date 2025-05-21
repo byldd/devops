@@ -22,10 +22,10 @@ source ./services/caddy.sh
 source ./services/infisical.sh
 
 # Run installations
-install_with_progress "Docker" docker_installer
 install_with_progress "Amazon-ECR-Credential-Helper" amazon_ecr_credential_helper_installer
 install_with_progress "Caddy" caddy_installer
 install_with_progress "Infisical" infisical_installer
+install_with_progress "Docker" docker_installer
 
 # Configure Watchtower
 # Mount aws ecr credential helper volume to host machine so that it can be used inside watchtower for ecr creds helper installation

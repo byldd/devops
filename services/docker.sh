@@ -39,7 +39,7 @@ DOCKER_CONFIG="
 
       sudo mkdir -p $HOME/.docker
       sudo touch $HOME/.docker/config.json
-      echo "$DOCKER_CONFIG" > ${HOME}/.docker/config.json
+      sudo echo "$DOCKER_CONFIG" > ${HOME}/.docker/config.json
       ;;
   esac
 }
