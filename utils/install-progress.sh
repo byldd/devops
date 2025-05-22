@@ -39,10 +39,6 @@ install_with_progress() {
     # Progress
     show_spinner "$pid" "Installing"
 
-    # Print newline after progress
-    echo
-
-    # Handle completion
     if wait $pid; then
       echo "✔️ $name installation completed."
       rm -f "$error_log"
@@ -67,10 +63,6 @@ install_with_progress() {
   # Progress
   show_spinner "$conf_pid" "Configuring"
 
-  # Print newline after progress
-  echo
-
-  # Handle completion
   if wait $conf_pid; then
     echo "✔️ $name configuration completed."
     rm -f "$error_log"
