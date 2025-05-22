@@ -36,5 +36,5 @@ echo "✔️  Watchtower configuration completed"
 echo "-----------------------"
 echo
 sudo systemctl restart caddy
-sudo su - $USER
+# sudo su - $USER
 echo " 🚀 All services are configured successfully"
