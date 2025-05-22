@@ -40,7 +40,7 @@ sudo systemctl restart caddy
 log_success "All services are installed and configured successfully"
 log_info "---- IMPORTANT NEXT STEP ----"
 log_info "Add the following DNS A records to your domain provider:"
-EC2_IP=$(curl -s http://checkip.amazonaws.com)
+EC2_IP=$(curl -s https://checkip.amazonaws.com)
 
 log_info "Point them to your EC2 instance public IP: ${YELLOW}${EC2_IP}${NC}"
 echo
