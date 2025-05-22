@@ -45,8 +45,8 @@ EC2_IP=$(curl -s http://checkip.amazonaws.com)
 log_info "Point them to your EC2 instance public IP: ${YELLOW}${EC2_IP}${NC}"
 echo
 log_info "Example A records:"
-echo -e "   ${YELLOW}${BACKEND_DOMAIN}     A     ${EC2_IP}${NC}"
-echo -e "   ${YELLOW}${FRONTEND_DOMAIN} A     ${EC2_IP}${NC}"
+echo -e "  type: A    value: ${YELLOW}${BACKEND_DOMAIN}   ip: ${EC2_IP}${NC}"
+echo -e "  type: A    value: ${YELLOW}${FRONTEND_DOMAIN}  ip: ${EC2_IP}${NC}"
 echo
 log_success "Once done, your setup will be fully live and ready to use!"
 echo
