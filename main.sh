@@ -7,7 +7,12 @@ source ./utils/env-checker.sh
 source ./utils/install-progress.sh
 
 if [ "$AUTH_TYPE" = "FIREBASE" ]; then
-    if ! [ -f ./firebase-cert.json ]; then
+    LOCAL_USER="${SUDO_USER:-$USER}"
+
+    FIREBASE_DIR="/home/$LOCAL_USER/devops"
+
+    FIREBASE_FILE="$FIREBASE_DIR/firebase-cert.json"
+    if ! [ -f "$FIREBASE_FILE" ]; then
         log_error "firebase cert does not exists. Please paste it in $HOME directory. Name of the file should be \'firebase-cert.json\'"
         exit 1
     fi
