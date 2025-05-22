@@ -2,10 +2,10 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 ENV_FILE="$SCRIPT_DIR/../.env"
 ENV_EXAMPLE_FILE="$SCRIPT_DIR/../.env.example"
 
-echo "✨ Step : Checking environment variables"
+log_info "Checking environment variables"
 
 if [ ! -f "$ENV_FILE" ]; then
-  echo "❌ .env not found."
+  log_error ".env not found."
   exit 1
 fi
 
@@ -27,18 +27,17 @@ while IFS= read -r line || [ -n "$line" ]; do
   if [ -z "${!key+x}" ]; then
     missing_keys+=("$key")
   fi
-done < "$ENV_EXAMPLE_FILE"
+done <"$ENV_EXAMPLE_FILE"
 
 # If any keys are missing, report and exit
 if [ ${#missing_keys[@]} -ne 0 ]; then
-  echo "❌ Missing required environment variables:"
+  log_error "Missing required environment variables:"
   for k in "${missing_keys[@]}"; do
     echo "   - $k"
   done
   exit 1
 fi
 
-echo "✔️ Environment validation successful."
+log_success "Environment validation successful."
 echo "--------------------------------"
 echo
-

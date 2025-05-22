@@ -6,15 +6,12 @@ source ./utils/loggers.sh
 source ./utils/env-checker.sh
 source ./utils/install-progress.sh
 
-# =======================================================================
-# Firebase cert file exists check
-# NOTE: This is for the old boilerplate where firebase-cert file is needed
-# to run the backend. Uncomment this if needed.
-# =======================================================================
-# if ! [ -f $HOME/firebase-cert.json ]; then
-#   echo "firebase cert does not exists. Please paste it in $HOME directory. Name of the file should be \'firebase-cert.json\'"
-#   exit 1;
-# fi
+if [ "$AUTH_TYPE" = "FIREBASE" ]; then
+    if ! [ -f $HOME/firebase-cert.json ]; then
+        echo "firebase cert does not exists. Please paste it in $HOME directory. Name of the file should be \'firebase-cert.json\'"
+        exit 1
+    fi
+fi
 
 # Load services
 source ./services/docker.sh
@@ -31,10 +28,10 @@ install_with_progress "Docker" docker_installer
 # Configure Watchtower
 # Mount aws ecr credential helper volume to host machine so that it can be used inside watchtower for ecr creds helper installation
 # ref: https://containrrr.dev/watchtower/private-registries/#credential_helpers
-echo "✨ Step : Configuring watchtower"
+log_info "Setting up watchtower :"
 docker run -d --rm --name aws-cred-helper --volume helper:/go/bin tanishbyldd/aws-ecr-dock-cred-helper
-echo "✔️  Watchtower configuration completed"
+log_success "Watchtower configuration completed"
 echo "-----------------------"
 echo
 sudo systemctl restart caddy
-echo " 🚀 All services are configured successfully"
+log_success "All services are configured successfully"
