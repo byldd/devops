@@ -1,14 +1,16 @@
 show_spinner() {
   local pid=$1
+  local message="$2"
   local delay=0.1
   local spinstr='|/-\'
+
   while kill -0 "$pid" 2>/dev/null; do
-    for i in $(seq 0 ${#spinstr}); do
-      printf "\r⏳ Installing: [%c] " "${spinstr:i:1}"
+    for ((i = 0; i < ${#spinstr}; i++)); do
+      printf "\r⏳ %s [%c] " "$message" "${spinstr:i:1}"
       sleep $delay
     done
   done
-  printf "\r                      \r" # clear line
+  printf "\r%*s\r" "$(tput cols)" "" # clear line cleanly
 }
 
 install_with_progress() {
@@ -35,7 +37,7 @@ install_with_progress() {
     local pid=$!
 
     # Progress
-    show_spinner "$pid"
+    show_spinner "$pid" "Installing"
 
     # Print newline after progress
     echo
@@ -63,7 +65,7 @@ install_with_progress() {
   local conf_pid=$!
 
   # Progress
-  show_spinner "$conf_pid"
+  show_spinner "$conf_pid" "Configuring"
 
   # Print newline after progress
   echo
