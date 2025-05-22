@@ -3,7 +3,6 @@ set -eo pipefail
 
 # Load utilities
 source ./utils/loggers.sh
-source ./utils/env-checker.sh
 source ./utils/install-progress.sh
 
 #sudo check
@@ -12,6 +11,9 @@ if [ "$EUID" -ne 0 ]; then
     log_info "Please run it like: sudo bash main.sh"
     exit 1
 fi
+
+#checking env
+source ./utils/env-checker.sh
 
 if [ "$AUTH_TYPE" = "FIREBASE" ]; then
     LOCAL_USER="${SUDO_USER:-$USER}"
