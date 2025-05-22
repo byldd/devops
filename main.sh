@@ -7,7 +7,7 @@ source ./utils/env-checker.sh
 source ./utils/install-progress.sh
 
 if [ "$AUTH_TYPE" = "FIREBASE" ]; then
-    if ! [ -f $HOME/firebase-cert.json ]; then
+    if ! [ -f ./firebase-cert.json ]; then
         log_error "firebase cert does not exists. Please paste it in $HOME directory. Name of the file should be \'firebase-cert.json\'"
         exit 1
     fi
