@@ -25,9 +25,8 @@ docker_installer() {
     ;;
   configure)
     sudo usermod -aG docker $USER
-    sudo su - $USER
 
-    DOCKER_DIR="$HOME/.docker"
+    DOCKER_DIR="/home/$USER/.docker"
 
     DOCKER_CONF="$DOCKER_DIR/config.json"
 
@@ -37,19 +36,14 @@ docker_installer() {
       sudo rm -f "$DOCKER_CONF"
     fi
 
-    #create a new Caddyfile with our .envs
-    cat <<EOF >"$DOCKER_CONF"
+    sudo -u "$USER" bash -c "cat <<EOF > '$DOCKER_CONF'
 {
-  "credsStore": "ecr-login",
-  "credHelpers": {
-    "$ECR_BASE_URI": "ecr-login"
+  \"credsStore\": \"ecr-login\",
+  \"credHelpers\": {
+    \"$ECR_BASE_URI\": \"ecr-login\"
   }
 }
-EOF
-
-    # Set correct permissions
-    chown root:root "$DOCKER_CONF"
-    chmod 644 "$DOCKER_CONF"
+EOF"
     ;;
   esac
 }

@@ -46,10 +46,10 @@ install_with_progress() {
   echo "⏳ Configuring $name"
 
   # Run Configure in background subshell
-  # (
-  #   set -e
-  $command_fn configure >/dev/null 2>"$error_log"
-  # ) &
+  (
+    set -e
+    $command_fn configure >/dev/null 2>"$error_log"
+  ) &
   local conf_pid=$!
 
   # Progress

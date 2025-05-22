@@ -31,9 +31,10 @@ install_with_progress "Docker" docker_installer
 # Mount aws ecr credential helper volume to host machine so that it can be used inside watchtower for ecr creds helper installation
 # ref: https://containrrr.dev/watchtower/private-registries/#credential_helpers
 echo "✨ Step : Configuring watchtower"
-docker run  -d --rm --name aws-cred-helper --volume helper:/go/bin tanishbyldd/aws-ecr-dock-cred-helper
+docker run -d --rm --name aws-cred-helper --volume helper:/go/bin tanishbyldd/aws-ecr-dock-cred-helper
 echo "✔️  Watchtower configuration completed"
 echo "-----------------------"
 echo
 sudo systemctl restart caddy
+sudo su - $USER
 echo " 🚀 All services are configured successfully"
