@@ -2,6 +2,7 @@
 set -eo pipefail
 
 # Load utilities
+source ./utils/loggers.sh
 source ./utils/env-checker.sh
 source ./utils/install-progress.sh
 
