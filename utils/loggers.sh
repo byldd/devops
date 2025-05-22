@@ -8,7 +8,7 @@ NC='\033[0m' # No Color
 
 # Logging functions with timestamps and colors
 log_info() {
-    echo -e "${BLUE}[INFO]${NC} $1"
+    echo -e "${BLUE}-> ${NC} $1"
 }
 
 log_success() {
