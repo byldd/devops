@@ -24,6 +24,8 @@ docker_installer() {
     sudo apt-get install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
     ;;
   configure)
+    echo "$USER"
+
     sudo usermod -aG docker $USER
 
     DOCKER_DIR="/home/$USER/.docker"
@@ -36,14 +38,19 @@ docker_installer() {
       sudo rm -f "$DOCKER_CONF"
     fi
 
-    sudo -u "$USER" bash -c "cat <<EOF > '$DOCKER_CONF'
+    #create a new Caddyfile with our .envs
+    cat <<EOF >"$DOCKER_CONF"
 {
-  \"credsStore\": \"ecr-login\",
-  \"credHelpers\": {
-    \"$ECR_BASE_URI\": \"ecr-login\"
+  "credsStore": "ecr-login",
+  "credHelpers": {
+    "$ECR_BASE_URI": "ecr-login"
   }
 }
-EOF"
+EOF
+
+    # Set correct permissions
+    chown root:root "$DOCKER_CONF"
+    chmod 644 "$DOCKER_CONF"
     ;;
   esac
 }
