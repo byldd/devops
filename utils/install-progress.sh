@@ -54,7 +54,7 @@ install_with_progress() {
 
   # Progress
   while kill -0 "$conf_pid" 2>/dev/null; do
-    echo -n "$USER"
+    echo -n "."
     sleep 0.5
   done
 

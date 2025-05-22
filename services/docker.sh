@@ -24,9 +24,13 @@ docker_installer() {
     sudo apt-get install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
     ;;
   configure)
-    sudo usermod -aG docker $USER
+    # This is done because we're running the script as sudo
+    # and we wanna configure this for our local user instead of root
+    LOCAL_USER = "${SUDO_USER:-$USER}"
 
-    DOCKER_DIR="/home/$USER/.docker"
+    sudo usermod -aG docker "$LOCAL_USER"
+
+    DOCKER_DIR="/home/$LOCAL_USER/.docker"
 
     DOCKER_CONF="$DOCKER_DIR/config.json"
 
@@ -46,9 +50,7 @@ docker_installer() {
 }
 EOF
 
-    # Set correct permissions
-    chown root:root "$DOCKER_CONF"
-    chmod 644 "$DOCKER_CONF"
+    sudo su - "$LOCAL_USER"
     ;;
   esac
 }
