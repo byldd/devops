@@ -1,3 +1,16 @@
+show_spinner() {
+  local pid=$1
+  local delay=0.1
+  local spinstr='|/-\'
+  while kill -0 "$pid" 2>/dev/null; do
+    for i in $(seq 0 ${#spinstr}); do
+      printf "\r⏳ Installing: [%c] " "${spinstr:i:1}"
+      sleep $delay
+    done
+  done
+  printf "\r                      \r" # clear line
+}
+
 install_with_progress() {
   local name=$1
   local command_fn=$2
@@ -22,10 +35,7 @@ install_with_progress() {
     local pid=$!
 
     # Progress
-    while kill -0 "$pid" 2>/dev/null; do
-      echo -n "."
-      sleep 0.5
-    done
+    show_spinner "$pid"
 
     # Print newline after progress
     echo
@@ -53,10 +63,7 @@ install_with_progress() {
   local conf_pid=$!
 
   # Progress
-  while kill -0 "$conf_pid" 2>/dev/null; do
-    echo -n "."
-    sleep 0.5
-  done
+  show_spinner "$conf_pid"
 
   # Print newline after progress
   echo
