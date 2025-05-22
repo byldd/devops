@@ -26,7 +26,7 @@ docker_installer() {
   configure)
     # This is done because we're running the script as sudo
     # and we wanna configure this for our local user instead of root
-    LOCAL_USER = "${SUDO_USER:-$USER}"
+    LOCAL_USER="${SUDO_USER:-$USER}"
 
     sudo usermod -aG docker "$LOCAL_USER"
 
