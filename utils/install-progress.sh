@@ -28,7 +28,6 @@ install_with_progress() {
   fi
 
   if [ "$is_exists" = false ]; then
-    echo "⏳ Installing $name"
     # Run install in background subshell
     (
       set -e
@@ -37,7 +36,7 @@ install_with_progress() {
     local pid=$!
 
     # Progress
-    show_spinner "$pid" "Installing"
+    show_spinner "$pid" "Installing $name"
 
     if wait $pid; then
       echo "✔️ $name installation completed."
@@ -51,8 +50,6 @@ install_with_progress() {
     fi
   fi
 
-  echo "⏳ Configuring $name"
-
   # Run Configure in background subshell
   (
     set -e
@@ -61,7 +58,7 @@ install_with_progress() {
   local conf_pid=$!
 
   # Progress
-  show_spinner "$conf_pid" "Configuring"
+  show_spinner "$conf_pid" "Configuring $name"
 
   if wait $conf_pid; then
     echo "✔️ $name configuration completed."
