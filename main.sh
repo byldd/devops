@@ -22,12 +22,10 @@ fi
 source ./services/docker.sh
 source ./services/ecr-creds-manager.sh
 source ./services/caddy.sh
-source ./services/infisical.sh
 
 # Run installations
 install_with_progress "Amazon-ECR-Credential-Helper" amazon_ecr_credential_helper_installer
 install_with_progress "Caddy" caddy_installer
-install_with_progress "Infisical" infisical_installer
 install_with_progress "Docker" docker_installer
 
 # Configure Watchtower
@@ -39,4 +37,16 @@ log_success "Watchtower configuration completed"
 echo "-----------------------"
 echo
 sudo systemctl restart caddy
-log_success "All services are configured successfully"
+log_success "All services are installed and configured successfully"
+log_info "---- IMPORTANT NEXT STEP ----"
+log_info "Add the following DNS A records to your domain provider:"
+EC2_IP=$(curl -s http://checkip.amazonaws.com)
+
+log_info "Point them to your EC2 instance public IP: ${YELLOW}${EC2_IP}${NC}"
+echo
+log_info "Example A records:"
+echo -e "   ${YELLOW}${BACKEND_DOMAIN}     A     ${EC2_IP}${NC}"
+echo -e "   ${YELLOW}${FRONTEND_DOMAIN} A     ${EC2_IP}${NC}"
+echo
+log_success "Once done, your setup will be fully live and ready to use!"
+echo
