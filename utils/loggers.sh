@@ -8,19 +8,19 @@ NC='\033[0m' # No Color
 
 # Logging functions with timestamps and colors
 log_info() {
-    echo -e "$(date '+%Y-%m-%d %H:%M:%S') ${BLUE}[INFO]${NC} $1"
+    echo -e "${BLUE}[INFO]${NC} $1"
 }
 
 log_success() {
-    echo -e "$(date '+%Y-%m-%d %H:%M:%S') ${GREEN}✔ $1${NC}"
+    echo -e "${GREEN}✔ $1${NC}"
 }
 
 log_warn() {
-    echo -e "$(date '+%Y-%m-%d %H:%M:%S') ${YELLOW}⚠ $1${NC}"
+    echo -e "${YELLOW}⚠ $1${NC}"
 }
 
 log_error() {
-    echo -e "$(date '+%Y-%m-%d %H:%M:%S') ${RED}✖ $1${NC}"
+    echo -e "${RED}✖ $1${NC}"
 }
 
 # Spinner animation for showing progress
