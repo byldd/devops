@@ -1,3 +1,31 @@
+#!/bin/bash
+
+# Colors for output
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+YELLOW='\033[1;33m'
+BLUE='\033[0;34m'
+CYAN='\033[0;36m'
+NC='\033[0m' # No Color
+
+# Logging functions with timestamps and colors
+log_info() {
+  echo -e "$(date '+%Y-%m-%d %H:%M:%S') ${BLUE}[INFO]${NC} $1"
+}
+
+log_success() {
+  echo -e "$(date '+%Y-%m-%d %H:%M:%S') ${GREEN}✔ $1${NC}"
+}
+
+log_warn() {
+  echo -e "$(date '+%Y-%m-%d %H:%M:%S') ${YELLOW}⚠ $1${NC}"
+}
+
+log_error() {
+  echo -e "$(date '+%Y-%m-%d %H:%M:%S') ${RED}✖ $1${NC}"
+}
+
+# Spinner animation for showing progress
 show_spinner() {
   local pid=$1
   local message="$2"
@@ -13,21 +41,23 @@ show_spinner() {
   printf "\r%*s\r" "$(tput cols)" "" # clear line cleanly
 }
 
+# Main install_with_progress function
 install_with_progress() {
   local name=$1
   local command_fn=$2
   local error_log="/tmp/${name,,}_install_error.log"
 
-  echo "✨ Step : Configuring $name"
+  log_info "Starting configuration of $name..."
 
-  is_exists=false
+  local is_exists=false
 
   if $command_fn check &>/dev/null; then
-    echo "✔️  $name is already installed"
+    log_success "$name is already installed."
     is_exists=true
   fi
 
   if [ "$is_exists" = false ]; then
+    log_info "Installing $name. This may take a few moments..."
     # Run install in background subshell
     (
       set -e
@@ -35,38 +65,40 @@ install_with_progress() {
     ) &
     local pid=$!
 
-    # Progress
+    # Show spinner while installing
     show_spinner "$pid" "Installing $name"
 
     if wait $pid; then
-      echo "✔️ $name installation completed."
+      log_success "$name installation completed successfully."
       rm -f "$error_log"
     else
-      echo "❌  $name installation failed!"
-      echo "🔧  Error output:"
+      log_error "$name installation failed!"
+      log_error "Error details:"
       cat "$error_log"
       rm -f "$error_log"
       exit 1
     fi
   fi
 
-  # Run Configure in background subshell
+  log_info "Configuring $name..."
+
+  # Run configure in background subshell
   (
     set -e
     $command_fn configure >/dev/null 2>"$error_log"
   ) &
   local conf_pid=$!
 
-  # Progress
+  # Show spinner while configuring
   show_spinner "$conf_pid" "Configuring $name"
 
   if wait $conf_pid; then
-    echo "✔️ $name configuration completed."
+    log_success "$name configuration completed successfully."
     rm -f "$error_log"
     echo "-----------------------"
   else
-    echo "❌  $name configuration failed!"
-    echo "🔧  Error output:"
+    log_error "$name configuration failed!"
+    log_error "Error details:"
     cat "$error_log"
     rm -f "$error_log"
     exit 1
