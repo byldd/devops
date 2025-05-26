@@ -1,3 +1,5 @@
+#!/bin/bash
+
 source ./utils/env-checker.sh
 
 POLL_INTERVAL=30

@@ -14,7 +14,6 @@ WorkingDirectory=$COMPOSE_DIR
 EnvironmentFile=/home/ubuntu/devops/.env
 Restart=always
 RestartSec=5
-User=ubuntu  # Or the user who owns the compose file
 
 [Install]
 WantedBy=multi-user.target
