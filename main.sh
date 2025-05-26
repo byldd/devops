@@ -37,11 +37,6 @@ install_with_progress "AWS Cli" aws_cli
 install_with_progress "Caddy" caddy_installer
 install_with_progress "Docker" docker_installer
 
-# Logging in ECR
-log_info "Logging into AWS ECR..."
-aws ecr get-login-password --region "$AWS_DEFAULT_REGION" | docker login --username AWS --password-stdin "${ECR_BASE_URI%%/*}"
-log_success "Logged into ECR Successfully"
-
 # Configure Auto Updater
 log_info "Setting up Autoupdater :"
 source ./utils/cron.sh
