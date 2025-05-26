@@ -29,30 +29,35 @@ fi
 
 # Load services
 source ./services/docker.sh
-source ./services/ecr-creds-manager.sh
+source ./services/aws-cli.sh
 source ./services/caddy.sh
 
 # Run installations
-install_with_progress "Amazon-ECR-Credential-Helper" amazon_ecr_credential_helper_installer
+install_with_progress "AWS Cli" aws_cli
 install_with_progress "Caddy" caddy_installer
 install_with_progress "Docker" docker_installer
 
-# Configure Watchtower
-# Mount aws ecr credential helper volume to host machine so that it can be used inside watchtower for ecr creds helper installation
-# ref: https://containrrr.dev/watchtower/private-registries/#credential_helpers
-log_info "Setting up watchtower :"
-docker run -d --rm --name aws-cred-helper --volume helper:/go/bin tanishbyldd/aws-ecr-dock-cred-helper
-log_success "Watchtower configuration completed"
+# Logging in ECR
+log_info "Logging into AWS ECR..."
+aws ecr get-login-password --region "$AWS_DEFAULT_REGION" | docker login --username AWS --password-stdin "${ECR_BASE_URI%%/*}"
+log_success "Logged into ECR Successfully"
+
+# Configure Auto Updater
+log_info "Setting up Autoupdater :"
+source ./utils/cron.sh
 echo "-----------------------"
 echo
 sudo systemctl restart caddy
+
 log_success "All services are installed and configured successfully"
+
 log_info "---- IMPORTANT NEXT STEP ----"
 log_info "Add the following DNS records to your domain provider:"
 EC2_IP=$(curl -s https://checkip.amazonaws.com)
 log_info "DNS records:"
-echo -e "  type: A    value: ${YELLOW}${BACKEND_DOMAIN}   ip: ${EC2_IP}${NC}"
-echo -e "  type: A    value: ${YELLOW}${FRONTEND_DOMAIN}  ip: ${EC2_IP}${NC}"
+echo -e "  type: A    value: ${YELLOW}${BACKEND_DOMAIN}   ip: ${EC2_IP}${NC} "
+echo -e "  type: A    value: ${YELLOW}${FRONTEND_DOMAIN}  ip: ${EC2_IP}${NC} "
 echo
 log_success "Once done, your setup will be fully live and ready to use!"
+sudo chmod +x updater.sh
 echo

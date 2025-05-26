@@ -1,0 +1,31 @@
+COMPOSE_DIR="/home/ubuntu/devops/"
+
+SERVICE_FILE="/etc/systemd/system/poll-ecr.service"
+
+cat <<EOF >"$SERVICE_FILE"
+[Unit]
+Description=Poll ECR and update Docker services
+After=network.target docker.service
+Requires=docker.service
+
+[Service]
+ExecStart=/home/ubuntu/devops/updater.sh
+WorkingDirectory=$COMPOSE_DIR
+EnvironmentFile=/home/ubuntu/devops/.env
+Restart=always
+RestartSec=5
+User=ubuntu  # Or the user who owns the compose file
+
+[Install]
+WantedBy=multi-user.target
+EOF
+
+log_success "Systemd service written to $SERVICE_FILE"
+
+sudo systemctl daemon-reload
+
+sudo systemctl enable poll-ecr.service
+
+sudo systemctl start poll-ecr.service
+
+log_success "ECR updater service is enabled"

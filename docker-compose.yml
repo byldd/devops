@@ -34,24 +34,6 @@ services:
     networks:
       - app-network
 
-  watchtower:
-    image: containrrr/watchtower
-    container_name: watchtower
-    volumes:
-      - /var/run/docker.sock:/var/run/docker.sock
-      - /home/ubuntu/.docker/config.json:/config.json
-      - helper:/go/bin
-    environment:
-      - AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}
-      - AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}
-      - PATH=$PATH:/go/bin
-      - HOME=/
-    command: --cleanup --rolling-restart --interval 30 frontend backend
-
 networks:
   app-network:
     driver: bridge
-
-volumes:
-  helper:
-    external: true

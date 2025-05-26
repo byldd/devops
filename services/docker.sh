@@ -21,7 +21,7 @@ docker_installer() {
       sudo tee /etc/apt/sources.list.d/docker.list >/dev/null
 
     sudo apt-get update -y
-    sudo apt-get install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
+    sudo apt-get install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin docker-compose
     ;;
   configure)
     # This is done because we're running the script as sudo
@@ -40,7 +40,7 @@ docker_installer() {
       sudo rm -f "$DOCKER_CONF"
     fi
 
-    #create a new Caddyfile with our .envs
+    #create a new docker config with our .envs
     cat <<EOF >"$DOCKER_CONF"
 {
   "credsStore": "ecr-login",
