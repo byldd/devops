@@ -26,8 +26,8 @@ while true; do
 
     if [[ "$CURRENT_FRONTEND_DIGEST" != "$LAST_FRONTEND_DIGEST" ]]; then
         log "Updating frontend service..."
-        docker-compose pull frontend
-        docker-compose up -d --no-deps --force-recreate frontend
+        docker compose pull frontend
+        docker compose up -d --no-deps --force-recreate frontend
         LAST_FRONTEND_DIGEST="$CURRENT_FRONTEND_DIGEST"
     else
         log "No change in frontend."
@@ -35,8 +35,8 @@ while true; do
 
     if [[ "$CURRENT_BACKEND_DIGEST" != "$LAST_BACKEND_DIGEST" ]]; then
         log "Updating backend and cron services..."
-        docker-compose pull backend
-        docker-compose up -d --no-deps --force-recreate backend cron
+        docker compose pull backend
+        docker compose up -d --no-deps --force-recreate backend cron
         LAST_BACKEND_DIGEST="$CURRENT_BACKEND_DIGEST"
     else
         log "No change in backend/cron."
