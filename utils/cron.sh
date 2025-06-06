@@ -12,6 +12,8 @@ Requires=docker.service
 ExecStart=/home/ubuntu/devops/updater.sh
 WorkingDirectory=$COMPOSE_DIR
 EnvironmentFile=/home/ubuntu/devops/.env
+User=ubuntu
+Environment=HOME=/home/ubuntu
 Restart=always
 RestartSec=5
 

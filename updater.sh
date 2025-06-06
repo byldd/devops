@@ -25,19 +25,27 @@ while true; do
     CURRENT_BACKEND_DIGEST=$(get_digest "$ECR_BACKEND_REPO_URI")
 
     if [[ "$CURRENT_FRONTEND_DIGEST" != "$LAST_FRONTEND_DIGEST" ]]; then
-        log "Updating frontend service..."
-        docker compose pull frontend
-        docker compose up -d --no-deps --force-recreate frontend
-        LAST_FRONTEND_DIGEST="$CURRENT_FRONTEND_DIGEST"
+        log "New frontend image detected. Attempting update..."
+        docker compose pull frontend && docker compose up -d --no-deps --force-recreate frontend
+        if [[ $? -eq 0 ]]; then
+            log "Frontend updated successfully."
+            LAST_FRONTEND_DIGEST="$CURRENT_FRONTEND_DIGEST"
+        else
+            log "Frontend update failed. See above output for details."
+        fi
     else
         log "No change in frontend."
     fi
 
     if [[ "$CURRENT_BACKEND_DIGEST" != "$LAST_BACKEND_DIGEST" ]]; then
-        log "Updating backend and cron services..."
-        docker compose pull backend
-        docker compose up -d --no-deps --force-recreate backend cron
-        LAST_BACKEND_DIGEST="$CURRENT_BACKEND_DIGEST"
+        log "New backend image detected. Attempting update..."
+        docker compose pull backend && docker compose up -d --no-deps --force-recreate backend cron
+        if [[ $? -eq 0 ]]; then
+            log "Backend and cron updated successfully."
+            LAST_BACKEND_DIGEST="$CURRENT_BACKEND_DIGEST"
+        else
+            log "Backend/cron update failed. See above output for details."
+        fi
     else
         log "No change in backend/cron."
     fi
