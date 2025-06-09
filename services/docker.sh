@@ -40,8 +40,6 @@ docker_installer() {
 EOF
 
     sudo chown "$LOCAL_USER:$LOCAL_USER" "$DOCKER_CONF"
-    sudo systemctl enable docker
-    sudo systemctl start docker
     ;;
   esac
 }
