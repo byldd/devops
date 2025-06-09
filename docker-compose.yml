@@ -38,7 +38,7 @@ services:
     container_name: cron
     image: ${ECR_BACKEND_REPO_URI}
     ports:
-      - "${BACKEND_PORT}:${BACKEND_PORT}"
+      - "${CRON_PORT}:${CRON_PORT}"
     restart: "always"
     entrypoint:
       [
