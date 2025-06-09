@@ -1,7 +1,7 @@
 aws_cli() {
   case $1 in
   check)
-    command -v aws
+    command -v aws && command -v docker-credential-ecr-login
     ;;
   install)
     sudo apt-get update -y
