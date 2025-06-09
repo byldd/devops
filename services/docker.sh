@@ -3,44 +3,21 @@ docker_installer() {
   check)
     command docker compose version
     ;;
-
   install)
-    echo "nameserver 8.8.8.8" | sudo tee /etc/resolv.conf > /dev/null
+    sudo apt-get update
+    sudo apt-get install -y ca-certificates curl
+    sudo install -m 0755 -d /etc/apt/keyrings
+    sudo curl -fsSL https://download.docker.com/linux/ubuntu/gpg -o /etc/apt/keyrings/docker.asc
+    sudo chmod a+r /etc/apt/keyrings/docker.asc
 
-    sudo apt-get update -y
-    sudo apt-get install -y \
-      ca-certificates \
-      curl \
-      gnupg \
-      lsb-release \
-      gpg
-
-    sudo mkdir -p /etc/apt/keyrings
-
-    # Ensure GPG key is saved
-    curl -fsSL https://download.docker.com/linux/ubuntu/gpg | \
-      sudo gpg --dearmor -o /etc/apt/keyrings/docker.gpg || {
-        exit 1
-      }
-
+    # Add the repository to Apt sources:
     echo \
-      "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.gpg] \
-      https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable" |
+      "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.asc] https://download.docker.com/linux/ubuntu \
+      $(. /etc/os-release && echo "$VERSION_CODENAME") stable" | \
       sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
-
-    sudo apt-get update -y
-    sudo apt-get install -y \
-      docker-ce \
-      docker-ce-cli \
-      containerd.io \
-      docker-buildx-plugin \
-      docker-compose-plugin \
-      docker-compose
-
-    sudo systemctl enable docker
-    sudo systemctl start docker
+    sudo apt-get update
+    sudo apt-get install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
     ;;
-
   configure)
     LOCAL_USER="${SUDO_USER:-$USER}"
     HOME_DIR=$(eval echo "~$LOCAL_USER")
@@ -63,6 +40,8 @@ docker_installer() {
 EOF
 
     sudo chown "$LOCAL_USER:$LOCAL_USER" "$DOCKER_CONF"
+    sudo systemctl enable docker
+    sudo systemctl start docker
     ;;
   esac
 }
