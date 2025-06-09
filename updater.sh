@@ -29,6 +29,8 @@ while true; do
         docker compose pull frontend && docker compose up -d --no-deps --force-recreate frontend
         if [[ $? -eq 0 ]]; then
             log "Frontend updated successfully."
+            # Remove all unused images
+            docker image prune -a
             LAST_FRONTEND_DIGEST="$CURRENT_FRONTEND_DIGEST"
         else
             log "Frontend update failed. See above output for details."
@@ -42,6 +44,7 @@ while true; do
         docker compose pull backend && docker compose up -d --no-deps --force-recreate backend cron
         if [[ $? -eq 0 ]]; then
             log "Backend and cron updated successfully."
+            # Remove all unused images
             LAST_BACKEND_DIGEST="$CURRENT_BACKEND_DIGEST"
         else
             log "Backend/cron update failed. See above output for details."
