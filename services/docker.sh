@@ -1,7 +1,7 @@
 docker_installer() {
   case $1 in
   check)
-    command -v docker
+    command -v docker compose
     ;;
 
   install)

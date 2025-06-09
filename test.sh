@@ -1,5 +1,5 @@
 if command -v docker compose; then
-    echo "YO COrrect"
+    exec su - "$LOCAL_USER"
 else 
     echo "Nah man"    
 fi
