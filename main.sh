@@ -43,7 +43,7 @@ source ./utils/cron.sh
 echo "-----------------------"
 echo
 sudo systemctl restart caddy
-
+docker compose up -d
 log_success "All services are installed and configured successfully"
 
 log_info "---- IMPORTANT NEXT STEP ----"
