@@ -15,9 +15,9 @@ fi
 #checking env
 source ./utils/env-checker.sh
 
-if [ "$AUTH_TYPE" = "FIREBASE" ]; then
-    LOCAL_USER="${SUDO_USER:-$USER}"
+LOCAL_USER="${SUDO_USER:-$USER}"
 
+if [ "$AUTH_TYPE" = "FIREBASE" ]; then
     FIREBASE_DIR="/home/$LOCAL_USER/devops"
 
     FIREBASE_FILE="$FIREBASE_DIR/firebase-cert.json"
