@@ -1,1 +1,3 @@
-echo command -v docker-compose;
+if command -v docker compose; then
+    echo "YO COrrect"
+fi
