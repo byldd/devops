@@ -3,45 +3,57 @@ docker_installer() {
   check)
     command -v docker
     ;;
+
   install)
+    echo "nameserver 8.8.8.8" | sudo tee /etc/resolv.conf > /dev/null
+
     sudo apt-get update -y
     sudo apt-get install -y \
       ca-certificates \
       curl \
       gnupg \
-      lsb-release
+      lsb-release \
+      gpg
 
     sudo mkdir -p /etc/apt/keyrings
-    curl -fsSL https://download.docker.com/linux/ubuntu/gpg |
-      sudo gpg --dearmor --yes -o /etc/apt/keyrings/docker.gpg
+
+    # Ensure GPG key is saved
+    curl -fsSL https://download.docker.com/linux/ubuntu/gpg | \
+      sudo gpg --dearmor -o /etc/apt/keyrings/docker.gpg || {
+        exit 1
+      }
 
     echo \
       "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.gpg] \
-        https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable" |
-      sudo tee /etc/apt/sources.list.d/docker.list >/dev/null
+      https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable" |
+      sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
 
     sudo apt-get update -y
-    sudo apt-get install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin docker-compose
+    sudo apt-get install -y \
+      docker-ce \
+      docker-ce-cli \
+      containerd.io \
+      docker-buildx-plugin \
+      docker-compose-plugin \
+      docker-compose
+
+    sudo systemctl enable docker
+    sudo systemctl start docker
     ;;
+
   configure)
-    # This is done because we're running the script as sudo
-    # and we wanna configure this for our local user instead of root
     LOCAL_USER="${SUDO_USER:-$USER}"
-
-    sudo usermod -aG docker "$LOCAL_USER"
-
-    DOCKER_DIR="/home/$LOCAL_USER/.docker"
-
+    HOME_DIR=$(eval echo "~$LOCAL_USER")
+    DOCKER_DIR="$HOME_DIR/.docker"
     DOCKER_CONF="$DOCKER_DIR/config.json"
 
-    mkdir -p "$DOCKER_DIR"
+    # Add user to docker group
+    sudo usermod -aG docker "$LOCAL_USER"
 
-    if [ -f "$DOCKER_CONF" ]; then
-      sudo rm -f "$DOCKER_CONF"
-    fi
+    sudo mkdir -p "$DOCKER_DIR"
+    sudo chown -R "$LOCAL_USER:$LOCAL_USER" "$DOCKER_DIR"
 
-    #create a new docker config with our .envs
-    cat <<EOF >"$DOCKER_CONF"
+    cat <<EOF | sudo tee "$DOCKER_CONF" > /dev/null
 {
   "credsStore": "ecr-login",
   "credHelpers": {
@@ -50,7 +62,7 @@ docker_installer() {
 }
 EOF
 
-    sudo su - "$LOCAL_USER"
+    sudo chown "$LOCAL_USER:$LOCAL_USER" "$DOCKER_CONF"
     ;;
   esac
 }
