@@ -1,5 +1,5 @@
 if command -v docker compose; then
-    exec su - "$LOCAL_USER"
+    exec su - ubuntu
 else 
     echo "Nah man"    
 fi
