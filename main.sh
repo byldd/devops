@@ -42,8 +42,9 @@ log_info "Setting up Autoupdater :"
 source ./utils/cron.sh
 echo "-----------------------"
 echo
-sudo chmod a+x updater.sh
 sudo chmod a+x ./utils/env-checker.sh
+sudo chmod a+x ./utils/loggers.sh
+sudo chmod a+x updater.sh
 sudo systemctl restart caddy
 log_success "All services are installed and configured successfully"
 
