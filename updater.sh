@@ -1,5 +1,5 @@
 #!/bin/bash
-
+source ./utils/loggers.sh
 source ./utils/env-checker.sh
 
 POLL_INTERVAL=30
@@ -10,7 +10,7 @@ IS_UPDATED=false
 get_digest() {
     local repo=$1
     aws ecr describe-images \
-        --repository-name "${repo##*/}" \
+        --repository-name "${repo#*.amazonaws.com/}" \
         --query 'sort_by(imageDetails,& imagePushedAt)[-1].imageDigest' \
         --output text
 }
