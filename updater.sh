@@ -5,6 +5,7 @@ source ./utils/env-checker.sh
 POLL_INTERVAL=30
 LAST_FRONTEND_DIGEST=""
 LAST_BACKEND_DIGEST=""
+IS_UPDATED=false
 
 get_digest() {
     local repo=$1
@@ -29,9 +30,8 @@ while true; do
         docker compose pull frontend && docker compose up -d --no-deps --force-recreate frontend
         if [[ $? -eq 0 ]]; then
             log "Frontend updated successfully."
-            # Remove all unused images
-            docker image prune -a
             LAST_FRONTEND_DIGEST="$CURRENT_FRONTEND_DIGEST"
+            IS_UPDATED=true
         else
             log "Frontend update failed. See above output for details."
         fi
@@ -44,13 +44,19 @@ while true; do
         docker compose pull backend && docker compose up -d --no-deps --force-recreate backend cron
         if [[ $? -eq 0 ]]; then
             log "Backend and cron updated successfully."
-            # Remove all unused images
             LAST_BACKEND_DIGEST="$CURRENT_BACKEND_DIGEST"
+            IS_UPDATED=true
         else
             log "Backend/cron update failed. See above output for details."
         fi
     else
         log "No change in backend/cron."
+    fi
+
+    if [ "$IS_UPDATED" = true ]; then
+        # deleting all unused resources
+        docker system prune -f
+        IS_UPDATED=false
     fi
 
     sleep "$POLL_INTERVAL"

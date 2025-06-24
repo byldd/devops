@@ -42,6 +42,8 @@ log_info "Setting up Autoupdater :"
 source ./utils/cron.sh
 echo "-----------------------"
 echo
+sudo chmod a+x updater.sh
+sudo chmod a+x ./utils/env-checker.sh
 sudo systemctl restart caddy
 log_success "All services are installed and configured successfully"
 
@@ -53,6 +55,5 @@ echo -e "  type: A    value: ${YELLOW}${BACKEND_DOMAIN}   ip: ${EC2_IP}${NC} "
 echo -e "  type: A    value: ${YELLOW}${FRONTEND_DOMAIN}  ip: ${EC2_IP}${NC} "
 echo
 log_success "Once done, your setup will be fully live and ready to use!"
-sudo chmod +x updater.sh
-exec su - "$LOCAL_USER"
 echo
+exec su - "$LOCAL_USER"
