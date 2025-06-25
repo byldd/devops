@@ -39,6 +39,10 @@ $FRONTEND_DOMAIN {
 $BACKEND_DOMAIN {
   reverse_proxy http://localhost:$BACKEND_PORT
 }
+
+$DOZZLE_DOMAIN {
+  reverse_proxy http://localhost:$DOZZLE_PORT
+}
 EOF
 
     # Set correct permissions

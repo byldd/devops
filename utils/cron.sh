@@ -5,8 +5,7 @@ SERVICE_FILE="/etc/systemd/system/poll-ecr.service"
 cat <<EOF >"$SERVICE_FILE"
 [Unit]
 Description=Poll ECR and update Docker services
-After=network.target docker.service
-Requires=docker.service
+After=network.target
 
 [Service]
 ExecStart=/home/ubuntu/devops/updater.sh
