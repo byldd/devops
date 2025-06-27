@@ -1,63 +1,58 @@
-FROM node:20-alpine AS base
+# ==============================================================
+# 0. Base image with shared dependencies
+# ==============================================================
 
-# Check https://github.com/nodejs/docker-node/tree/b4117f9333da4138b03a546ec926ef50a31506c3#nodealpine to understand why libc6-compat might be needed.
-RUN apk add --no-cache libc6-compat
+FROM node:22-alpine3.18 AS base
 
-# Setup Infisical [https://infisical.com/docs/integrations/platforms/docker] for env management
+RUN apk add --no-cache libc6-compat bash
+
 RUN apk add --no-cache bash curl && curl -1sLf \
 'https://dl.cloudsmith.io/public/infisical/infisical-cli/setup.alpine.sh' | bash \
 && apk add infisical
 
+WORKDIR /app
+
 # ==============================================================
-# 1. Install dependencies only when needed
+# 1. Dependency installation
 # ==============================================================
+
 FROM base AS deps
 
 WORKDIR /app
 
-# Install dependencies based on the preferred package manager
 COPY package.json ./
-RUN npm install
 
+RUN npm i
 
 # ==============================================================
-# 2. Rebuild the source code only when needed
+# 3. Build source with env vars from Infisical
 # ==============================================================
+
 FROM base AS builder
+
 WORKDIR /app
+
 COPY --from=deps /app/node_modules ./node_modules
+
 COPY . .
 
-ARG infisical_env
-ARG infisical_project_id
+RUN  npm run build
 
-RUN --mount=type=secret,id=infisical_token,required=true \
-  INFISICAL_TOKEN=$(cat /run/secrets/infisical_token) \
-  infisical run --env=$infisical_env --projectId=$infisical_project_id --path=/frontend -- npm run build
-
+# Clean up
+RUN rm -rf .env tsconfig.tsbuildinfo
 
 # ==============================================================
-# 3. Production image, copy all the files and run next
+# 4. Final production image
 # ==============================================================
+
 FROM base AS runner
+
+ENV PORT=3000
+
+ENV HOSTNAME=0.0.0.0
+
 WORKDIR /app
 
-
-RUN addgroup -g 1001 -S nodejs
-RUN adduser -S nextjs -u 1001
-
-COPY --from=builder /app/public ./public
-
-# Automatically leverage output traces to reduce image size
-# https://nextjs.org/docs/advanced-features/output-file-tracing
-COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
-COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
-
-USER nextjs
+COPY --from=builder /app/.next .
 
 EXPOSE 3000
-
-ENV PORT 3000
-ENV HOSTNAME 0.0.0.0
-
-# CMD ["infisical", "run", "--env=staging", "--path=/frontend", "--", "node", "server.js"]
