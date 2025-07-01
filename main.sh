@@ -43,12 +43,21 @@ install_with_progress "Caddy" caddy_installer
 install_with_progress "Docker" docker_installer
 
 # ================================
+# Waiting for docker
+# ================================
+log_info "Waiting for Docker service to start..."
+
+until systemctl is-active --quiet docker; do
+    sleep 1
+done
+
+log_success "Docker service is active."
+
+# ================================
 # Auto-Updater Setup
 # ================================
 log_info "Setting up Autoupdater:"
 source ./utils/cron.sh
-chmod a+x ./utils/{env-checker.sh,loggers.sh} updater.sh
-sudo systemctl restart caddy
 log_success "All services are installed and configured successfully"
 echo "-----------------------"
 echo
@@ -66,6 +75,14 @@ echo "-----------------------"
 echo
 
 # ================================
+# Cleaning up 
+# ================================
+chmod a+x ./utils/env-checker.sh ./utils/loggers.sh updater.sh
+docker compose up -d
+sudo systemctl restart caddy
+sudo systemctl restart poll-ecr
+
+# ================================
 # DNS Configuration Reminder
 # ================================
 log_info "---- IMPORTANT NEXT STEP ----"
@@ -78,8 +95,6 @@ echo
 log_success "Once DNS is updated, your setup will be live!"
 echo "---- Stay Happy ----"
 echo
-
-# ================================
-# Exiting the current shell
-# ================================
 exec su - "$LOCAL_USER"
+
+
