@@ -47,6 +47,10 @@ install_with_progress "Docker" docker_installer
 # ================================
 log_info "Waiting for Docker service to start..."
 
+if ! systemctl is-active --quiet docker; then
+    sudo systemctl start docker
+fi
+
 until systemctl is-active --quiet docker; do
     sleep 1
 done
@@ -78,7 +82,6 @@ echo
 # Cleaning up 
 # ================================
 chmod a+x ./utils/env-checker.sh ./utils/loggers.sh updater.sh
-docker compose up -d
 sudo systemctl restart caddy
 sudo systemctl restart poll-ecr
 
