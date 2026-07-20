@@ -1,2 +1,5 @@
 .env
+
+# Dozzle runtime data (written on the host by the Dozzle container, not source)
 users.yml
+admin/
