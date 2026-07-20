@@ -41,16 +41,16 @@ while true; do
 
     if [[ "$CURRENT_BACKEND_DIGEST" != "$LAST_BACKEND_DIGEST" ]]; then
         log "New backend image detected. Attempting update..."
-        docker compose pull backend && docker compose up -d --no-deps --force-recreate backend cron
+        docker compose pull backend && docker compose up -d --no-deps --force-recreate --remove-orphans backend worker
         if [[ $? -eq 0 ]]; then
-            log "Backend and cron updated successfully."
+            log "Backend and worker updated successfully."
             LAST_BACKEND_DIGEST="$CURRENT_BACKEND_DIGEST"
             IS_UPDATED=true
         else
-            log "Backend/cron update failed. See above output for details."
+            log "Backend/worker update failed. See above output for details."
         fi
     else
-        log "No change in backend/cron."
+        log "No change in backend/worker."
     fi
 
     if [ "$IS_UPDATED" = true ]; then
