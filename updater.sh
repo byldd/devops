@@ -41,7 +41,9 @@ while true; do
 
     if [[ "$CURRENT_BACKEND_DIGEST" != "$LAST_BACKEND_DIGEST" ]]; then
         log "New backend image detected. Attempting update..."
-        docker compose pull backend && docker compose up -d --no-deps --force-recreate --remove-orphans backend worker
+        docker compose pull backend && \
+            docker compose run --rm --no-deps roles-sync && \
+            docker compose up -d --no-deps --force-recreate --remove-orphans backend worker
         if [[ $? -eq 0 ]]; then
             log "Backend and worker updated successfully."
             LAST_BACKEND_DIGEST="$CURRENT_BACKEND_DIGEST"
