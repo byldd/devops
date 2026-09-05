@@ -38,6 +38,11 @@ if [ ${#missing_keys[@]} -ne 0 ]; then
   exit 1
 fi
 
+if [[ "$WORKOS_ROLE_SYNC_ENABLED" != "true" && "$WORKOS_ROLE_SYNC_ENABLED" != "false" ]]; then
+  log_error "WORKOS_ROLE_SYNC_ENABLED must be set to either 'true' or 'false'."
+  exit 1
+fi
+
 log_success "Environment validation successful."
 echo "--------------------------------"
 echo

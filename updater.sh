@@ -19,6 +19,23 @@ log() {
     echo "[$(date '+%Y-%m-%d %H:%M:%S')] $*"
 }
 
+sync_workos_roles() {
+    if [[ "$WORKOS_ROLE_SYNC_ENABLED" == "false" ]]; then
+        log "WorkOS role sync is disabled for this project; skipping."
+        return 0
+    fi
+
+    log "Syncing WorkOS roles before backend rollout..."
+
+    if docker compose run --rm --no-deps roles-sync; then
+        log "WorkOS roles synced successfully."
+        return 0
+    fi
+
+    log "WorkOS role sync failed. Backend rollout stopped."
+    return 1
+}
+
 while true; do
     log "Polling ECR..."
 
@@ -42,7 +59,7 @@ while true; do
     if [[ "$CURRENT_BACKEND_DIGEST" != "$LAST_BACKEND_DIGEST" ]]; then
         log "New backend image detected. Attempting update..."
         docker compose pull backend && \
-            docker compose run --rm --no-deps roles-sync && \
+            sync_workos_roles && \
             docker compose up -d --no-deps --force-recreate --remove-orphans backend worker
         if [[ $? -eq 0 ]]; then
             log "Backend and worker updated successfully."
